@@ -45,9 +45,9 @@ cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R);
 // I/O
 // --------------------------------
 
-void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath);
+void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames);
 
-void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath);
+void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames);
 
 void loadGyro(std::string filename, std::vector<std::vector<double>>& time_gyros);
 // read time gyro txt file with format of timestamp, gx, gy, gz

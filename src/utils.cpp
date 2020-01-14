@@ -169,9 +169,9 @@ void loadGyro(std::string filename, std::vector<std::vector<double>>& time_gyros
     }
 }
 
-void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath){
+void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames){
     char file[200];
-    sprintf(file, "image_0/%06d.png", frame_id);
+    sprintf(file, "stereo_left/%s", imagenames[frame_id].c_str());
     
     // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);
@@ -180,9 +180,9 @@ void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std:
     cvtColor(image_color, image_gary, cv::COLOR_BGR2GRAY);
 }
 
-void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath){
+void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames){
     char file[200];
-    sprintf(file, "image_1/%06d.png", frame_id);
+    sprintf(file, "stereo_right/%s", imagenames[frame_id].c_str());
 
     // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);

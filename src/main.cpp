@@ -14,6 +14,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <experimental/filesystem>
 
 
 
@@ -24,6 +25,7 @@
 #include "Frame.h"
 
 using namespace std;
+namespace fs = std::experimental::filesystem;
 
 int main(int argc, char **argv)
 {
@@ -87,14 +89,20 @@ int main(int argc, char **argv)
     cv::Mat points4D, points3D;
     int init_frame_id = 0;
 
+    vector<string> imagenames;
+    std::string path = filepath + "stereo_left/";
+    for (const auto & entry : fs::directory_iterator(path))
+        imagenames.push_back(entry.path().filename());
+    std::sort(imagenames.begin(), imagenames.end());
+
     // ------------------------
     // Load first images
     // ------------------------
     cv::Mat imageLeft_t0_color,  imageLeft_t0;
-    loadImageLeft(imageLeft_t0_color,  imageLeft_t0, init_frame_id, filepath);
+    loadImageLeft(imageLeft_t0_color,  imageLeft_t0, init_frame_id, filepath, imagenames);
     
     cv::Mat imageRight_t0_color, imageRight_t0;  
-    loadImageRight(imageRight_t0_color, imageRight_t0, init_frame_id, filepath);
+    loadImageRight(imageRight_t0_color, imageRight_t0, init_frame_id, filepath, imagenames);
     clock_t t_a, t_b;
 
     // -----------------------------------------
@@ -111,9 +119,9 @@ int main(int argc, char **argv)
         // Load images
         // ------------
         cv::Mat imageLeft_t1_color,  imageLeft_t1;
-        loadImageLeft(imageLeft_t1_color,  imageLeft_t1, frame_id, filepath);        
+        loadImageLeft(imageLeft_t1_color,  imageLeft_t1, frame_id, filepath, imagenames);        
         cv::Mat imageRight_t1_color, imageRight_t1;  
-        loadImageRight(imageRight_t1_color, imageRight_t1, frame_id, filepath);
+        loadImageRight(imageRight_t1_color, imageRight_t1, frame_id, filepath, imagenames);
 
         t_a = clock();
         std::vector<cv::Point2f> oldPointsLeft_t0 = currentVOFeatures.points;
