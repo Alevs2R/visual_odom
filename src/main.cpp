@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     std::vector<FeaturePoint> oldFeaturePointsLeft;
     std::vector<FeaturePoint> currentFeaturePointsLeft;
 
-    for (int frame_id = init_frame_id+1; frame_id < 9000; frame_id++)
+    for (int frame_id = init_frame_id+1; frame_id < 800; frame_id++)
     {
 
         std::cout << std::endl << "frame_id " << frame_id << std::endl;
@@ -192,9 +192,10 @@ int main(int argc, char **argv)
 
         cv::Mat xyz = frame_pose.col(3).clone();
         display(frame_id, trajectory, xyz, pose_matrix_gt, fps, display_ground_truth);
+        cv::waitKey(1);
 
     }
-
+    cv::waitKey(0);
     return 0;
 }
 

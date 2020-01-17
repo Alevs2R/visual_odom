@@ -44,7 +44,7 @@ void display(int frame_id, cv::Mat& trajectory, cv::Mat& pose, std::vector<Matri
     cv::imshow( "Trajectory", trajectory );
 
 
-    cv::waitKey(1);
+    //cv::waitKey(1);
 }
 
 
