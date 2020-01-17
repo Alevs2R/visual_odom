@@ -1,0 +1,23 @@
+%YAML:1.0
+
+#--------------------------------------------------------------------------------------------
+# Camera Parameters. Adjust them!
+#--------------------------------------------------------------------------------------------
+
+# Camera calibration and distortion parameters (OpenCV) 
+Camera.fx: 775.37235550066748
+Camera.fy: 775.37235550066748
+Camera.cx: 619.4730911254882
+Camera.cy: 257.18049049377441
+
+Camera.width: 560
+Camera.height: 1280
+
+# stereo baseline times fx
+Camera.bf: -368.41758740842312
+
+Camera.fps: 10.0
+
+# Close/Far threshold. Baseline times.
+ThDepth: 35
+

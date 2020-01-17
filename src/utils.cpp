@@ -19,8 +19,8 @@ void drawFeaturePoints(cv::Mat image, std::vector<cv::Point2f>& points)
 void display(int frame_id, cv::Mat& trajectory, cv::Mat& pose, std::vector<Matrix>& pose_matrix_gt, float fps, bool show_gt)
 {
     // draw estimated trajectory 
-    int x = int(pose.at<double>(0)) + 300;
-    int y = int(pose.at<double>(2)) + 100;
+    int x = int(pose.at<double>(0)) + 600;
+    int y = int(pose.at<double>(2)) + 400;
     circle(trajectory, cv::Point(x, y) ,1, CV_RGB(255,0,0), 2);
 
     if (show_gt)
@@ -169,9 +169,9 @@ void loadGyro(std::string filename, std::vector<std::vector<double>>& time_gyros
     }
 }
 
-void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath){
+void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames){
     char file[200];
-    sprintf(file, "image_0/%06d.png", frame_id);
+    sprintf(file, "stereo_left/%s", imagenames[frame_id].c_str());
     
     // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);
@@ -180,9 +180,9 @@ void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std:
     cvtColor(image_color, image_gary, cv::COLOR_BGR2GRAY);
 }
 
-void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath){
+void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames){
     char file[200];
-    sprintf(file, "image_1/%06d.png", frame_id);
+    sprintf(file, "stereo_right/%s", imagenames[frame_id].c_str());
 
     // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);
