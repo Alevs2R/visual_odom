@@ -3,6 +3,7 @@
 #include <math.h>
 #include <vector>
 #include <limits>
+#include <string>
 
 #include "mail.h"
 #include "matrix.h"
@@ -81,13 +82,13 @@ vector<errors> calcSequenceErrors (vector<Matrix> &poses_gt,vector<Matrix> &pose
  
   // for all start positions do
   for (int32_t first_frame=0; first_frame<poses_gt.size(); first_frame+=step_size) {
-  
-    // for all segment lengths do
-    for (int32_t i=0; i<num_lengths; i++) {
     
+    // for all segment lengths do
+    for (int32_t i=0; i<num_lengths; i++) {   
+
       // current length
-      float len = lengths[i];
-      
+      float len = lengths[i]; 
+
       // compute last frame
       int32_t last_frame = lastFrameFromSegmentLength(dist,first_frame,len);
       
@@ -110,6 +111,7 @@ vector<errors> calcSequenceErrors (vector<Matrix> &poses_gt,vector<Matrix> &pose
       err.push_back(errors(first_frame,r_err/len,t_err/len,len,speed));
     }
   }
+  printf("finish\n");
 
   // return error vector
   return err;
@@ -190,7 +192,7 @@ void plotPathPlot (string dir,vector<int32_t> &roi,int32_t idx) {
   string full_name = dir + "/" + file_name;
   
   // create png + eps
-  for (int32_t i=0; i<2; i++) {
+  for (int32_t i=0; i<1; i++) {
 
     // open file  
     FILE *fp = fopen(full_name.c_str(),"w");
@@ -219,15 +221,17 @@ void plotPathPlot (string dir,vector<int32_t> &roi,int32_t idx) {
     // run gnuplot => create png + eps
     sprintf(command,"cd %s; gnuplot %s",dir.c_str(),file_name);
     system(command);
+    sprintf(command,"cd %s; rm %02d.gp; rm %02d.txt",dir.c_str(),idx,idx);
+    system(command);
   }
   
   // create pdf and crop
-  sprintf(command,"cd %s; ps2pdf %02d.eps %02d_large.pdf",dir.c_str(),idx,idx);
-  system(command);
-  sprintf(command,"cd %s; pdfcrop %02d_large.pdf %02d.pdf",dir.c_str(),idx,idx);
-  system(command);
-  sprintf(command,"cd %s; rm %02d_large.pdf",dir.c_str(),idx);
-  system(command);
+  // sprintf(command,"cd %s; ps2pdf %02d.eps %02d_large.pdf",dir.c_str(),idx,idx);
+  // system(command);
+  // sprintf(command,"cd %s; pdfcrop %02d_large.pdf %02d.pdf",dir.c_str(),idx,idx);
+  // system(command);
+  // sprintf(command,"cd %s; rm %02d_large.pdf",dir.c_str(),idx);
+  // system(command);
 }
 
 void saveErrorPlots(vector<errors> &seq_err,string plot_error_dir,char* prefix) {
@@ -319,7 +323,7 @@ void plotErrorPlots (string dir,char* prefix) {
     sprintf(full_name,"%s/%s",dir.c_str(),file_name);
     
     // create png + eps
-    for (int32_t j=0; j<2; j++) {
+    for (int32_t j=0; j<1; j++) {
 
       // open file  
       FILE *fp = fopen(full_name,"w");
@@ -363,12 +367,14 @@ void plotErrorPlots (string dir,char* prefix) {
       system(command);
     }
     
-    // create pdf and crop
-    sprintf(command,"cd %s; ps2pdf %s_%s.eps %s_%s_large.pdf",dir.c_str(),prefix,suffix,prefix,suffix);
-    system(command);
-    sprintf(command,"cd %s; pdfcrop %s_%s_large.pdf %s_%s.pdf",dir.c_str(),prefix,suffix,prefix,suffix);
-    system(command);
-    sprintf(command,"cd %s; rm %s_%s_large.pdf",dir.c_str(),prefix,suffix);
+    //create pdf and crop
+    // sprintf(command,"cd %s; ps2pdf %s_%s.eps %s_%s_large.pdf",dir.c_str(),prefix,suffix,prefix,suffix);
+    // system(command);
+    // sprintf(command,"cd %s; pdfcrop %s_%s_large.pdf %s_%s.pdf",dir.c_str(),prefix,suffix,prefix,suffix);
+    // system(command);
+    // sprintf(command,"cd %s; rm %s_%s_large.pdf",dir.c_str(),prefix,suffix);
+    // system(command);
+    sprintf(command,"cd %s; rm %s_%s.gp; rm %s_%s.txt",dir.c_str(),prefix,suffix,prefix,suffix);
     system(command);
   }
 }
@@ -395,42 +401,31 @@ void saveStats (vector<errors> err,string dir) {
   fclose(fp);
 }
 
-bool eval (string result_sha,Mail* mail) {
-
+void eval () {
   // ground truth and result directories
-  string gt_dir         = "data/odometry/poses";
-  string result_dir     = "results/" + result_sha;
+  string gt_dir         = "../poses/";
+  string result_dir     = "../results/";
   string error_dir      = result_dir + "/errors";
   string plot_path_dir  = result_dir + "/plot_path";
   string plot_error_dir = result_dir + "/plot_error";
-
   // create output directories
-  system(("mkdir " + error_dir).c_str());
+  /*system(("mkdir " + error_dir).c_str());
   system(("mkdir " + plot_path_dir).c_str());
-  system(("mkdir " + plot_error_dir).c_str());
-  
+  system(("mkdir " + plot_error_dir).c_str());*/
+
   // total errors
   vector<errors> total_err;
 
   // for all sequences do
-  for (int32_t i=11; i<22; i++) {
-   
+  for (int32_t i=0; i<=3; i+=3) {
+    printf("result %d\n", i);
     // file name
     char file_name[256];
     sprintf(file_name,"%02d.txt",i);
     
     // read ground truth and result poses
     vector<Matrix> poses_gt     = loadPoses(gt_dir + "/" + file_name);
-    vector<Matrix> poses_result = loadPoses(result_dir + "/data/" + file_name);
-   
-    // plot status
-    mail->msg("Processing: %s, poses: %d/%d",file_name,poses_result.size(),poses_gt.size());
-    
-    // check for errors
-    if (poses_gt.size()==0 || poses_result.size()!=poses_gt.size()) {
-      mail->msg("ERROR: Couldn't read (all) poses of: %s", file_name);
-      return false;
-    }
+    vector<Matrix> poses_result = loadPoses(result_dir + "/" + file_name);
 
     // compute sequence errors    
     vector<errors> seq_err = calcSequenceErrors(poses_gt,poses_result);
@@ -439,20 +434,17 @@ bool eval (string result_sha,Mail* mail) {
     // add to total errors
     total_err.insert(total_err.end(),seq_err.begin(),seq_err.end());
     
-    // for first half => plot trajectory and compute individual stats
-    if (i<=15) {
-    
-      // save + plot bird's eye view trajectories
-      savePathPlot(poses_gt,poses_result,plot_path_dir + "/" + file_name);
-      vector<int32_t> roi = computeRoi(poses_gt,poses_result);
-      plotPathPlot(plot_path_dir,roi,i);
+    // save + plot bird's eye view trajectories
+    savePathPlot(poses_gt,poses_result,plot_path_dir + "/" + file_name);
+    vector<int32_t> roi = computeRoi(poses_gt,poses_result);
+    plotPathPlot(plot_path_dir,roi,i);
 
-      // save + plot individual errors
-      char prefix[16];
-      sprintf(prefix,"%02d",i);
-      saveErrorPlots(seq_err,plot_error_dir,prefix);
-      plotErrorPlots(plot_error_dir,prefix);
-    }
+    // save + plot individual errors
+    char prefix[16];
+    sprintf(prefix,"%02d",i);
+    saveErrorPlots(seq_err,plot_error_dir,prefix);
+    plotErrorPlots(plot_error_dir,prefix);
+
   }
   
   // save + plot total errors + summary statistics
@@ -463,9 +455,12 @@ bool eval (string result_sha,Mail* mail) {
     plotErrorPlots(plot_error_dir,prefix);
     saveStats(total_err,result_dir);
   }
+}
 
-  // success
-	return true;
+int main(int argc, char **argv) {
+  printf("hmm\n");
+  eval();
+  return 0;
 }
 
 // int32_t main (int32_t argc,char *argv[]) {

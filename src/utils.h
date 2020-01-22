@@ -52,4 +52,6 @@ void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std
 void loadGyro(std::string filename, std::vector<std::vector<double>>& time_gyros);
 // read time gyro txt file with format of timestamp, gx, gy, gz
 
+void logToFile(FILE* file, cv::Mat& pose);
+
 #endif

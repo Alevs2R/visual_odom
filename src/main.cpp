@@ -23,13 +23,33 @@
 #include "evaluate_odometry.h"
 #include "visualOdometry.h"
 #include "Frame.h"
+#include "featureProcessing/filters.h"
 
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
 int main(int argc, char **argv)
 {
+    float testAr[] = {
+        1,1,1,0,1,
+        1,1,1,0,1,
+        0,0,0,0,0,
+        1,1,1,0,1,
+        1,1,1,0,1,
+    };
+    cv::Mat testImg = cv::Mat(5, 5, CV_32F, testAr);
+    cv::Mat grad_x, grad_y;
+    cv::Mat abs_grad_x, abs_grad_y;   
+    cv::Scharr( testImg, grad_x, -1, 1, 0, 1, 0, cv::BORDER_DEFAULT);
+    cv::Scharr( testImg, grad_y, -1, 0, 1, 1, 0, cv::BORDER_DEFAULT);
+    convertScaleAbs( grad_x, abs_grad_x );
+    convertScaleAbs( grad_y, abs_grad_y );
 
+    cout << "sourc: " << testImg << endl;
+    cout << "grad y: " << abs_grad_y << endl;
+    cout << "grad x: " << abs_grad_x << endl;
+
+    return 0; 
     // -----------------------------------------
     // Load images and calibration parameters
     // -----------------------------------------
@@ -84,16 +104,18 @@ int main(int argc, char **argv)
     cv::Mat frame_pose32 = cv::Mat::eye(4, 4, CV_32F);
 
     std::cout << "frame_pose " << frame_pose << std::endl;
-    cv::Mat trajectory = cv::Mat::zeros(600, 1200, CV_8UC3);
+    cv::Mat trajectory = cv::Mat::zeros(1200, 1400, CV_8UC3);
     FeatureSet currentVOFeatures;
     cv::Mat points4D, points3D;
     int init_frame_id = 0;
 
     vector<string> imagenames;
-    std::string path = filepath + "stereo_left/";
+    std::string path = filepath + "image_0/";
     for (const auto & entry : fs::directory_iterator(path))
         imagenames.push_back(entry.path().filename());
     std::sort(imagenames.begin(), imagenames.end());
+
+    FILE* result_poses_file = fopen ("./result.txt","w");
 
     // ------------------------
     // Load first images
@@ -111,7 +133,7 @@ int main(int argc, char **argv)
     std::vector<FeaturePoint> oldFeaturePointsLeft;
     std::vector<FeaturePoint> currentFeaturePointsLeft;
 
-    for (int frame_id = init_frame_id+1; frame_id < 800; frame_id++)
+    for (int frame_id = init_frame_id+1; frame_id < imagenames.size(); frame_id++)
     {
 
         std::cout << std::endl << "frame_id " << frame_id << std::endl;
@@ -200,9 +222,11 @@ int main(int argc, char **argv)
 
         cv::Mat xyz = frame_pose.col(3).clone();
         display(frame_id, trajectory, xyz, pose_matrix_gt, fps, display_ground_truth);
+        logToFile(result_poses_file, frame_pose);
         cv::waitKey(1);
 
     }
+    fclose(result_poses_file);
     cv::waitKey(0);
     return 0;
 }

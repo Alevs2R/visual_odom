@@ -16,12 +16,16 @@ void drawFeaturePoints(cv::Mat image, std::vector<cv::Point2f>& points)
     }
 }
 
+void logToFile(FILE* file, cv::Mat& pose) {
+    fprintf(file, "%1.6e %1.6e %1.6e %1.6e %1.6e %1.6e %1.6e %1.6e %1.6e %1.6e %1.6e %1.6e \n", pose.at<double>(0,0),pose.at<double>(0,1),pose.at<double>(0,2),pose.at<double>(0,3),pose.at<double>(1,0),pose.at<double>(1,1),pose.at<double>(1,2),pose.at<double>(1,3),pose.at<double>(2,0),pose.at<double>(2,1),pose.at<double>(2,2),pose.at<double>(2,3));
+}
+
 void display(int frame_id, cv::Mat& trajectory, cv::Mat& pose, std::vector<Matrix>& pose_matrix_gt, float fps, bool show_gt)
 {
     // draw estimated trajectory 
-    int x = int(pose.at<double>(0)) + 600;
-    int y = int(pose.at<double>(2)) + 400;
-    circle(trajectory, cv::Point(x, y) ,1, CV_RGB(255,0,0), 2);
+    int x = int(pose.at<double>(0)) + 400;
+    int y = -int(pose.at<double>(2)) + 600;
+    circle(trajectory, cv::Point(x, y) ,1, CV_RGB(255,0,0), 1);
 
     if (show_gt)
     {
@@ -31,9 +35,9 @@ void display(int frame_id, cv::Mat& trajectory, cv::Mat& pose, std::vector<Matri
       pose_gt.at<double>(0) = pose_matrix_gt[frame_id].val[0][3];
       pose_gt.at<double>(1) = pose_matrix_gt[frame_id].val[0][7];
       pose_gt.at<double>(2) = pose_matrix_gt[frame_id].val[0][11];
-      x = int(pose_gt.at<double>(0)) + 300;
-      y = int(pose_gt.at<double>(2)) + 100;
-      circle(trajectory, cv::Point(x, y) ,1, CV_RGB(255,255,0), 2);
+      x = int(pose_gt.at<double>(0)) + 400;
+      y = -int(pose_gt.at<double>(2)) + 600;
+      circle(trajectory, cv::Point(x, y) ,1, CV_RGB(255,255,0), 1);
     }
     // print info
 
@@ -42,7 +46,6 @@ void display(int frame_id, cv::Mat& trajectory, cv::Mat& pose, std::vector<Matri
     // putText(traj, text, textOrg, fontFace, fontScale, Scalar::all(255), thickness, 8);
 
     cv::imshow( "Trajectory", trajectory );
-
 
     //cv::waitKey(1);
 }
@@ -171,7 +174,7 @@ void loadGyro(std::string filename, std::vector<std::vector<double>>& time_gyros
 
 void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames){
     char file[200];
-    sprintf(file, "stereo_left/%s", imagenames[frame_id].c_str());
+    sprintf(file, "image_0/%s", imagenames[frame_id].c_str());
     
     // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);
@@ -182,7 +185,7 @@ void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std:
 
 void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath, std::vector<std::string> imagenames){
     char file[200];
-    sprintf(file, "stereo_right/%s", imagenames[frame_id].c_str());
+    sprintf(file, "image_1/%s", imagenames[frame_id].c_str());
 
     // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);

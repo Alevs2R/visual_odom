@@ -2,6 +2,7 @@
 find_package( OpenCV REQUIRED )
 
 add_subdirectory(evaluate)
+add_subdirectory(featureProcessing)
 
 include_directories(${OpenCV_INCLUDE_DIRS} )
 include_directories(evaluate)
@@ -28,4 +29,4 @@ target_link_libraries( visualOdometry utils bucket feature ${OpenCV_LIBS})
 
 
 target_link_libraries( Frame ${OpenCV_LIBS} )
-target_link_libraries( run ${OpenCV_LIBS} bucket feature utils visualOdometry Frame  )
+target_link_libraries( run ${OpenCV_LIBS} bucket feature utils visualOdometry Frame featureProcessing )
