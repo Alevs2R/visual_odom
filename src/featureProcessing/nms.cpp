@@ -5,7 +5,7 @@ int nms_n = 8;
 int nms_tau = 50;
 int margin = 21;
 
-std::vector<KeyPoint> nonMaximaSuppression(cv::Mat blobF, cv::Mat cornerF) {
+std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
     int width = blobF.cols;
     int height = blobF.rows;
     int num = 0;
@@ -61,7 +61,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat blobF, cv::Mat cornerF) {
             if (!failedBlobMin) {
                 if (f1min_val <= -nms_tau) {
                     KeyPoint newPoint = {
-                        cv::Point(f1min_i, f1min_j),
+                        cv::Point(f1min_j, f1min_i),
                         f1min_val,
                         BLOB_MIN_CLASS
                     };
@@ -72,7 +72,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat blobF, cv::Mat cornerF) {
             if (!failedBlobMax) {
                 if (f1max_val >= nms_tau) {
                     KeyPoint newPoint = {
-                        cv::Point(f1max_i, f1min_j),
+                        cv::Point(f1max_j, f1min_i),
                         f1max_val,
                         BLOB_MAX_CLASS
                     };
@@ -83,7 +83,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat blobF, cv::Mat cornerF) {
             if (!failedCornerMin) {
                 if (f2min_val <= -nms_tau) {
                     KeyPoint newPoint = {
-                        cv::Point(f2min_i, f2min_j),
+                        cv::Point(f2min_j, f2min_i),
                         f2min_val,
                         CORNER_MIN_CLASS
                     };
@@ -94,7 +94,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat blobF, cv::Mat cornerF) {
             if (!failedCornerMax) {
                 if (f2max_val >= nms_tau) {
                     KeyPoint newPoint = {
-                        cv::Point(f2max_i, f2max_j),
+                        cv::Point(f2max_j, f2max_i),
                         f2max_val,
                         CORNER_MAX_CLASS
                     };
@@ -106,11 +106,11 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat blobF, cv::Mat cornerF) {
     return keypoints;
 }
 
-bool checkMaximumValidity (cv::Mat I, int fmax, int fmax_i, int fmax_j) {
+bool checkMaximumValidity (cv::Mat& I, int fmax, int fmax_i, int fmax_j) {
     int width = I.cols;
     int height = I.rows;
-    int i_last = std::min(fmax_i + nms_n, width - 1 - margin);
-    int j_last = std::min(fmax_j + nms_n, height - 1 - margin);
+    int i_last = std::min(fmax_i + nms_n, height - 1 - margin);
+    int j_last = std::min(fmax_j + nms_n, width - 1 - margin);
     int maxval = 0;
     int max_i, max_j;
 
@@ -131,11 +131,11 @@ bool checkMaximumValidity (cv::Mat I, int fmax, int fmax_i, int fmax_j) {
     return false; // not failed
 }
 
-bool checkMinimumValidity (cv::Mat I, int fmin, int fmin_i, int fmin_j) {
+bool checkMinimumValidity (cv::Mat& I, int fmin, int fmin_i, int fmin_j) {
     int width = I.cols;
     int height = I.rows;
-    int i_last = std::min(fmin_i + nms_n, width - 1 - margin);
-    int j_last = std::min(fmin_j + nms_n, height - 1 - margin);
+    int i_last = std::min(fmin_i + nms_n, height - 1 - margin);
+    int j_last = std::min(fmin_j + nms_n, width - 1 - margin);
     int minval = INT_MAX; // MAXIMUM FOR int!
     int min_i, min_j;
 

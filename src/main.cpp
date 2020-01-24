@@ -157,7 +157,7 @@ int main(int argc, char **argv)
                           pointsLeft_t0, 
                           pointsRight_t0, 
                           pointsLeft_t1, 
-                          pointsRight_t1);  
+                          pointsRight_t1);
 
         imageLeft_t0 = imageLeft_t1;
         imageRight_t0 = imageRight_t1;

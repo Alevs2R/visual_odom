@@ -1,3 +1,7 @@
+#ifndef NMS_INCLUDE
+
+#define NMS_INCLUDE
+
 #include <vector>
 #include "opencv2/core/core.hpp"
 
@@ -10,8 +14,11 @@ struct KeyPoint {
     cv::Point2f point;
     int value;
     int pointClass;
+    int descriptor[32];
 };
 
-std::vector<KeyPoint> nonMaximaSuppression(cv::Mat blobF, cv::Mat cornerF);
-bool checkMinimumValidity (cv::Mat I, int fmin, int fmin_i, int fmin_j);
-bool checkMaximumValidity (cv::Mat I, int fmax, int fmax_i, int fmax_j);
+std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF);
+bool checkMinimumValidity (cv::Mat& I, int fmin, int fmin_i, int fmin_j);
+bool checkMaximumValidity (cv::Mat&  I, int fmax, int fmax_i, int fmax_j);
+
+#endif

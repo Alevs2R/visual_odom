@@ -97,7 +97,7 @@ void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
 
         // append new features with old features
         appendNewFeatures(imageLeft_t0, currentVOFeatures);   
-        // std::cout << "Current feature set size: " << currentVOFeatures.points.size() << std::endl;
+         std::cout << "Current feature set size: " << currentVOFeatures.points.size() << std::endl;
     }
 
     // --------------------------------------------------------

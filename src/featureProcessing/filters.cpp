@@ -23,7 +23,7 @@ float sobelKernelY[] = {1, 2, 0, -2, 1};
 
 int divisor = 48;
 
-cv::Mat blob5x5(cv::Mat image)  
+cv::Mat blob5x5(cv::Mat& image)  
 {
     cv::Mat dst;
     cv::Mat blobFilter = cv::Mat(5, 5, CV_32F, blobKernel);
@@ -32,7 +32,7 @@ cv::Mat blob5x5(cv::Mat image)
     return dst;         
 }
 
-cv::Mat corner5x5(cv::Mat image)  
+cv::Mat corner5x5(cv::Mat& image)  
 {
     cv::Mat dst;
     cv::Mat cornerFilter = cv::Mat(5, 5, CV_32F, cornerKernel);
@@ -41,7 +41,7 @@ cv::Mat corner5x5(cv::Mat image)
     return dst;         
 }
 
-cv::Mat gradientX(cv::Mat image)
+cv::Mat gradientX(cv::Mat& image)
 {
     cv::Mat grad, abs_grad;
     cv::Scharr( image, grad, -1, 1, 0, 1, 0, cv::BORDER_DEFAULT);
@@ -49,7 +49,7 @@ cv::Mat gradientX(cv::Mat image)
     return abs_grad; 
 }
 
-cv::Mat gradientY(cv::Mat image)
+cv::Mat gradientY(cv::Mat& image)
 {
     cv::Mat grad, abs_grad;
     cv::Scharr( image, grad, -1, 0, 1, 1, 0, cv::BORDER_DEFAULT);
