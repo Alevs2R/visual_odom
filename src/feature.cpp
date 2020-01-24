@@ -1,5 +1,9 @@
 #include "feature.h"
 #include "bucket.h"
+#include "featureProcessing/filters.h"
+#include "featureProcessing/nms.h"
+
+
 
 void deleteUnmatchFeatures(std::vector<cv::Point2f>& points0, std::vector<cv::Point2f>& points1, std::vector<uchar>& status)
 {
@@ -18,6 +22,21 @@ void deleteUnmatchFeatures(std::vector<cv::Point2f>& points0, std::vector<cv::Po
               indexCorrection++;
         }
      }
+}
+
+void featureDetectionGeiger(cv::Mat image, std::vector<cv::Point2f>& points)  
+{  
+    cv::Mat gradX, gradY, cornerF, blobF;
+    gradX = gradientX(image);
+    gradY = gradientY(image);
+    cornerF = corner5x5(image);
+    blobF = blob5x5(image);
+
+    std::vector<KeyPoint> keypts = nonMaximaSuppression(blobF, cornerF);
+    std::cout << "features detected " << std::endl;
+    std::cout << "size " << keypts.size() << std::endl;
+
+    exit(0);
 }
 
 void featureDetectionFast(cv::Mat image, std::vector<cv::Point2f>& points)  
@@ -184,7 +203,7 @@ void bucketingFeatures(cv::Mat& image, FeatureSet& current_features, int bucket_
 void appendNewFeatures(cv::Mat& image, FeatureSet& current_features)
 {
     std::vector<cv::Point2f>  points_new;
-    featureDetectionFast(image, points_new);
+    featureDetectionGeiger(image, points_new);
     current_features.points.insert(current_features.points.end(), points_new.begin(), points_new.end());
     std::vector<int>  ages_new(points_new.size(), 0);
     current_features.ages.insert(current_features.ages.end(), ages_new.begin(), ages_new.end());

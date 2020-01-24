@@ -43,22 +43,18 @@ cv::Mat corner5x5(cv::Mat image)
 
 cv::Mat gradientX(cv::Mat image)
 {
-    cv::Mat dst;
-    cv::Mat sobelFilter = cv::Mat(1, 5, CV_32F, sobelKernelX);
-    cv::filter2D(image, dst, -1, sobelFilter, cv::Point(-1, -1), 0,
-            cv::BORDER_DEFAULT); 
-    dst = dst / divisor + 128;
-    return dst;        
+    cv::Mat grad, abs_grad;
+    cv::Scharr( image, grad, -1, 1, 0, 1, 0, cv::BORDER_DEFAULT);
+    convertScaleAbs(grad, abs_grad);  
+    return abs_grad; 
 }
 
 cv::Mat gradientY(cv::Mat image)
 {
-    cv::Mat dst;
-    cv::Mat sobelFilter = cv::Mat(1, 5, CV_32F, sobelKernelY);
-    cv::filter2D(image, dst, -1, sobelFilter, cv::Point(-1, -1), 0,
-            cv::BORDER_DEFAULT); 
-    dst = dst / divisor + 128;
-    return dst;        
+    cv::Mat grad, abs_grad;
+    cv::Scharr( image, grad, -1, 0, 1, 1, 0, cv::BORDER_DEFAULT);
+    convertScaleAbs(grad, abs_grad);  
+    return abs_grad; 
 }
 
 

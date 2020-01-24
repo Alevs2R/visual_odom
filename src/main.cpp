@@ -30,26 +30,26 @@ namespace fs = std::experimental::filesystem;
 
 int main(int argc, char **argv)
 {
-    float testAr[] = {
-        1,1,1,0,1,
-        1,1,1,0,1,
-        0,0,0,0,0,
-        1,1,1,0,1,
-        1,1,1,0,1,
-    };
-    cv::Mat testImg = cv::Mat(5, 5, CV_32F, testAr);
-    cv::Mat grad_x, grad_y;
-    cv::Mat abs_grad_x, abs_grad_y;   
-    cv::Scharr( testImg, grad_x, -1, 1, 0, 1, 0, cv::BORDER_DEFAULT);
-    cv::Scharr( testImg, grad_y, -1, 0, 1, 1, 0, cv::BORDER_DEFAULT);
-    convertScaleAbs( grad_x, abs_grad_x );
-    convertScaleAbs( grad_y, abs_grad_y );
+    // float testAr[] = {
+    //     1,1,1,0,1,
+    //     1,1,1,0,1,
+    //     0,0,0,0,0,
+    //     1,1,1,0,1,
+    //     1,1,1,0,1,
+    // };
+    // cv::Mat testImg = cv::Mat(5, 5, CV_32F, testAr);
+    // cv::Mat grad_x, grad_y;
+    // cv::Mat abs_grad_x, abs_grad_y;   
+    // cv::Scharr( testImg, grad_x, -1, 1, 0, 1, 0, cv::BORDER_DEFAULT);
+    // cv::Scharr( testImg, grad_y, -1, 0, 1, 1, 0, cv::BORDER_DEFAULT);
+    // convertScaleAbs( grad_x, abs_grad_x );
+    // convertScaleAbs( grad_y, abs_grad_y );
 
-    cout << "sourc: " << testImg << endl;
-    cout << "grad y: " << abs_grad_y << endl;
-    cout << "grad x: " << abs_grad_x << endl;
+    // cout << "sourc: " << testImg << endl;
+    // cout << "grad y: " << abs_grad_y << endl;
+    // cout << "grad x: " << abs_grad_x << endl;
 
-    return 0; 
+    // return 0; 
     // -----------------------------------------
     // Load images and calibration parameters
     // -----------------------------------------
