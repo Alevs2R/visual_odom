@@ -2,16 +2,20 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "cpp build active file",
-            "command": "/usr/bin/cpp",
-            "args": [
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
-            ],
+            "label": "make debug",
+            "command": "make",
+            "args": [],
             "options": {
-                "cwd": "/usr/bin"
+                "cwd": "${workspaceFolder}/debug"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "make release",
+            "command": "make",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
             }
         }
     ],

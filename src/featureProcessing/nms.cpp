@@ -2,7 +2,7 @@
 #include <iostream>
 
 int nms_n = 8;
-int nms_tau = 50;
+int nms_tau = 150;
 int margin = 21;
 
 std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
@@ -10,19 +10,21 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
     int height = blobF.rows;
     int num = 0;
 
+
+
     std::vector<KeyPoint> keypoints = std::vector<KeyPoint>();
 
     int i,j;
 
     for (i = nms_n + margin; i <= height - nms_n - margin; i+=nms_n+1){
         for (j = nms_n + margin; j <= width - nms_n - margin; j+=nms_n+1){
-            int f1min_i = i, f1min_j = j, f1max_i = i, f1max_j = j;
-            int f2min_i = i, f2min_j = j, f2max_i = i, f2max_j = j;
+            int16_t f1min_i = i, f1min_j = j, f1max_i = i, f1max_j = j;
+            int16_t f2min_i = i, f2min_j = j, f2max_i = i, f2max_j = j;
 
-            int f1min_val = blobF.at<int>(i, j);
-            int f1max_val = f1min_val;
-            int f2min_val = cornerF.at<int>(i, j);
-            int f2max_val = f2min_val;
+            int16_t f1min_val = blobF.at<int16_t>(i, j);
+            int16_t f1max_val = f1min_val;
+            int16_t f2min_val = cornerF.at<int16_t>(i, j);
+            int16_t f2max_val = f2min_val;
 
             // Step a)
             // Partitions input image into blocks of sizes (n + 1) x (n + 1).
@@ -30,7 +32,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             for (int i2 = i; i2 <=i + nms_n; i2++){
                 for (int j2 = j; j2 <= j + nms_n; j2++) {
                     // for blob detector
-                    int currval = blobF.at<int>(i2, j2);
+                    int16_t currval = blobF.at<int16_t>(i2, j2);
                     if (currval < f1min_val) {        
                         f1min_i   = i2;
                         f1min_j   = j2;
@@ -42,7 +44,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
                         f1max_val = currval;
                     }
                     // for corner detector
-                    currval = cornerF.at<int>(i2, j2);
+                    currval = cornerF.at<int16_t>(i2, j2);
                     if (currval < f2min_val) {        
                         f2min_i   = i2;
                         f2min_j   = j2;
@@ -111,12 +113,12 @@ bool checkMaximumValidity (cv::Mat& I, int fmax, int fmax_i, int fmax_j) {
     int height = I.rows;
     int i_last = std::min(fmax_i + nms_n, height - 1 - margin);
     int j_last = std::min(fmax_j + nms_n, width - 1 - margin);
-    int maxval = 0;
+    int16_t maxval = 0;
     int max_i, max_j;
 
     for (int i = fmax_i - nms_n; i <= i_last; i++){
         for (int j = fmax_j - nms_n; j <= j_last; j++){
-            int currval = I.at<int>(i, j);
+            int16_t currval = I.at<int16_t>(i, j);
             if (currval > maxval) {
                 maxval = currval;
                 max_i = i;
@@ -136,12 +138,12 @@ bool checkMinimumValidity (cv::Mat& I, int fmin, int fmin_i, int fmin_j) {
     int height = I.rows;
     int i_last = std::min(fmin_i + nms_n, height - 1 - margin);
     int j_last = std::min(fmin_j + nms_n, width - 1 - margin);
-    int minval = INT_MAX; // MAXIMUM FOR int!
+    int16_t minval = INT16_MAX; // MAXIMUM FOR int!
     int min_i, min_j;
 
     for (int i = fmin_i - nms_n; i <= i_last; i++){
         for (int j = fmin_j - nms_n; j <= j_last; j++){
-            int currval = I.at<int>(i, j);
+            int16_t currval = I.at<int16_t>(i, j);
             if (currval < minval) {
                 minval = currval;
                 min_i = i;

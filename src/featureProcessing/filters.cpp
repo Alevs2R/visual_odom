@@ -1,7 +1,8 @@
 #include "filters.h"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
 
-float blobKernel[] = {
+int8_t blobKernel[] = {
     -1, -1, -1, -1,-1,
     -1, 1, 1, 1, -1,
     -1, 1, 8, 1, -1,
@@ -9,7 +10,7 @@ float blobKernel[] = {
     -1, -1, -1, -1,-1
 };
 
-float cornerKernel[] = {
+int8_t cornerKernel[] = {
     -1, -1, 0, 1, 1,
     -1, -1, 0, 1, 1,
     0, 0, 0, 0, 0,
@@ -26,8 +27,8 @@ int divisor = 48;
 cv::Mat blob5x5(cv::Mat& image)  
 {
     cv::Mat dst;
-    cv::Mat blobFilter = cv::Mat(5, 5, CV_32F, blobKernel);
-    cv::filter2D(image, dst, -1, blobFilter, cv::Point(-1, -1), 0,
+    cv::Mat blobFilter = cv::Mat(5, 5, CV_8SC1, blobKernel);
+    cv::filter2D(image, dst, CV_16SC1, blobFilter, cv::Point(-1, -1), 0,
              cv::BORDER_DEFAULT);
     return dst;         
 }
@@ -35,26 +36,29 @@ cv::Mat blob5x5(cv::Mat& image)
 cv::Mat corner5x5(cv::Mat& image)  
 {
     cv::Mat dst;
-    cv::Mat cornerFilter = cv::Mat(5, 5, CV_32F, cornerKernel);
-    cv::filter2D(image, dst, -1, cornerFilter, cv::Point(-1, -1), 0,
+    cv::Mat cornerFilter = cv::Mat(5, 5, CV_8SC1, cornerKernel);
+    cv::filter2D(image, dst, CV_16SC1, cornerFilter, cv::Point(-1, -1), 0,
              cv::BORDER_DEFAULT);
+
     return dst;         
 }
 
 cv::Mat gradientX(cv::Mat& image)
 {
-    cv::Mat grad, abs_grad;
-    cv::Scharr( image, grad, -1, 1, 0, 1, 0, cv::BORDER_DEFAULT);
-    convertScaleAbs(grad, abs_grad);  
-    return abs_grad; 
+    cv::Mat grad;
+    cv::Scharr( image, grad, CV_16S, 1, 0, 1, 0, cv::BORDER_DEFAULT);
+    //convertScaleAbs(grad, abs_grad);  
+    return grad; 
 }
 
 cv::Mat gradientY(cv::Mat& image)
 {
-    cv::Mat grad, abs_grad;
-    cv::Scharr( image, grad, -1, 0, 1, 1, 0, cv::BORDER_DEFAULT);
-    convertScaleAbs(grad, abs_grad);  
-    return abs_grad; 
+    cv::Mat grad;
+    cv::Scharr( image, grad, CV_16S, 0, 1, 1, 0, cv::BORDER_DEFAULT);
+    //std::cout << "grad = " << std::endl << " "  << grad << std::endl << std::endl;
+    //convertScaleAbs(grad, abs_grad);  
+    //std::cout << "abs_grad = " << std::endl << " "  << abs_grad << std::endl << std::endl;
+    return grad; 
 }
 
 

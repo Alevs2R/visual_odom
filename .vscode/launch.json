@@ -5,17 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cpp build and debug active file",
+            "name": "build and debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": [],
+            "program": "${workspaceFolder}/debug/run",
+            "args": ["~/Documents/dataset/sequences/01/", "../calibration/kitti01.yaml", "~/Documents/dataset2/poses/01.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "cpp build active file"
+            "MIMode": "gdb",
+            "preLaunchTask": "make debug"
+        },
+        {
+            "name": "build and run kitti01",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/run",
+            "args": ["~/Documents/dataset/sequences/01/", "../calibration/kitti01.yaml", "~/Documents/dataset2/poses/01.txt"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "preLaunchTask": "make release"
         }
     ]
 }

@@ -86,9 +86,6 @@ void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                       std::vector<cv::Point2f>&  pointsLeft_t1, 
                       std::vector<cv::Point2f>&  pointsRight_t1)
 {
-    // ----------------------------
-    // Feature detection using FAST
-    // ----------------------------
     std::vector<cv::Point2f>  pointsLeftReturn_t0;   // feature points to check cicular mathcing validation
 
 
@@ -96,7 +93,8 @@ void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
     {
 
         // append new features with old features
-        appendNewFeatures(imageLeft_t0, currentVOFeatures);   
+        appendNewFeatures(imageLeft_t0, currentVOFeatures); 
+  
          std::cout << "Current feature set size: " << currentVOFeatures.points.size() << std::endl;
     }
 

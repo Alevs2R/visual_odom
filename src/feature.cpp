@@ -27,7 +27,6 @@ void deleteUnmatchFeatures(std::vector<cv::Point2f>& points0, std::vector<cv::Po
 
 void featureDetectionGeiger(cv::Mat image, std::vector<cv::Point2f>& points)  
 {  
-
     cv::Mat gradX, gradY, cornerF, blobF;
     gradX = gradientX(image);
     gradY = gradientY(image);
@@ -36,7 +35,7 @@ void featureDetectionGeiger(cv::Mat image, std::vector<cv::Point2f>& points)
 
     std::vector<KeyPoint> keypts = nonMaximaSuppression(blobF, cornerF);
     computeDescriptors(gradX, gradY, keypts);
-    // std::cout << "features detected size " << keypts.size() << std::endl;
+    std::cout << "features detected size " << keypts.size() << std::endl;
 
     cv::Mat vis;
     cv::cvtColor(image, vis, CV_GRAY2BGR, 3);
@@ -45,11 +44,11 @@ void featureDetectionGeiger(cv::Mat image, std::vector<cv::Point2f>& points)
   
     for (int i = 0; i < keypts.size(); i++)
     {
-        // circle(vis, cvPoint(keypts[i].point.x, keypts[i].point.y), radius, CV_RGB(255,0,0));
+        circle(vis, cvPoint(keypts[i].point.x, keypts[i].point.y), radius, CV_RGB(255,0,0));
         points.push_back(keypts[i].point);
     }
 
-   // cv::imshow("img", vis);
+   cv::imshow("img", vis);
     // cv::waitKey();
     // exit(0);
 }

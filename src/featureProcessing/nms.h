@@ -12,9 +12,9 @@
 
 struct KeyPoint {
     cv::Point2f point;
-    int value;
+    int16_t value;
     int pointClass;
-    int descriptor[32];
+    int16_t descriptor[32];
 };
 
 std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF);
