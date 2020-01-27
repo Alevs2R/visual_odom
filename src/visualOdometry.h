@@ -27,10 +27,10 @@
 void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                       cv::Mat& imageLeft_t1, cv::Mat& imageRight_t1, 
                       FeatureSet& currentVOFeatures,
-                      std::vector<cv::Point2f>&  pointsLeft_t0, 
-                      std::vector<cv::Point2f>&  pointsRight_t0, 
-                      std::vector<cv::Point2f>&  pointsLeft_t1, 
-                      std::vector<cv::Point2f>&  pointsRight_t1);
+                      std::vector<KeyPoint>&  pts1_l, 
+                      std::vector<KeyPoint>&  pts1_r, 
+                      std::vector<KeyPoint>&  pts2_l, 
+                      std::vector<KeyPoint>&  pts2_r);
 
 
 void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,

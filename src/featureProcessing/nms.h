@@ -11,10 +11,13 @@
 #define CORNER_MAX_CLASS 4
 
 struct KeyPoint {
-    cv::Point2f point;
+    cv::Point2i point;
     int16_t value;
     int pointClass;
     int16_t descriptor[32];
+    int age = 0;
+    int parentKeyPointInd = -1;
+    KeyPoint(cv::Point2i point, int16_t value, int pointClass) : point(point), value(value), pointClass(pointClass) {}
 };
 
 std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF);

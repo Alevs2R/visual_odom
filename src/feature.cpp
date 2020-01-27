@@ -1,7 +1,6 @@
 #include "feature.h"
 #include "bucket.h"
 #include "featureProcessing/filters.h"
-#include "featureProcessing/nms.h"
 #include "featureProcessing/computeDescriptors.h"
 
 
@@ -25,7 +24,7 @@ void deleteUnmatchFeatures(std::vector<cv::Point2f>& points0, std::vector<cv::Po
      }
 }
 
-void featureDetectionGeiger(cv::Mat image, std::vector<cv::Point2f>& points)  
+std::vector<KeyPoint> featureDetectionGeiger(cv::Mat& image)  
 {  
     cv::Mat gradX, gradY, cornerF, blobF;
     gradX = gradientX(image);
@@ -35,20 +34,14 @@ void featureDetectionGeiger(cv::Mat image, std::vector<cv::Point2f>& points)
 
     std::vector<KeyPoint> keypts = nonMaximaSuppression(blobF, cornerF);
     computeDescriptors(gradX, gradY, keypts);
-    std::cout << "features detected size " << keypts.size() << std::endl;
+    return keypts;
 
-    cv::Mat vis;
-    cv::cvtColor(image, vis, CV_GRAY2BGR, 3);
+   // cv::Mat vis;
+  // cv::cvtColor(image, vis, CV_GRAY2BGR, 3);
 
-    int radius = 2;
-  
-    for (int i = 0; i < keypts.size(); i++)
-    {
-        circle(vis, cvPoint(keypts[i].point.x, keypts[i].point.y), radius, CV_RGB(255,0,0));
-        points.push_back(keypts[i].point);
-    }
-
-   cv::imshow("img", vis);
+   // int radius = 2;
+    // circle(vis, cvPoint(keypts[i].point.x, keypts[i].point.y), radius, CV_RGB(255,0,0));
+   //cv::imshow("img", vis);
     // cv::waitKey();
     // exit(0);
 }
@@ -212,20 +205,4 @@ void bucketingFeatures(cv::Mat& image, FeatureSet& current_features, int bucket_
 
     std::cout << "current features number after bucketing: " << current_features.size() << std::endl;
 
-}
-
-void appendNewFeatures(cv::Mat& image, FeatureSet& current_features)
-{
-    std::vector<cv::Point2f>  points_new;
-    featureDetectionGeiger(image, points_new);
-    current_features.points.insert(current_features.points.end(), points_new.begin(), points_new.end());
-    std::vector<int>  ages_new(points_new.size(), 0);
-    current_features.ages.insert(current_features.ages.end(), ages_new.begin(), ages_new.end());
-}
-
-void appendNewFeatures(std::vector<cv::Point2f> points_new, FeatureSet& current_features)
-{
-    current_features.points.insert(current_features.points.end(), points_new.begin(), points_new.end());
-    std::vector<int>  ages_new(points_new.size(), 0);
-    current_features.ages.insert(current_features.ages.end(), ages_new.begin(), ages_new.end());
 }

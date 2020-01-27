@@ -3,6 +3,7 @@ find_package( OpenCV REQUIRED )
 
 add_subdirectory(evaluate)
 add_subdirectory(featureProcessing)
+add_subdirectory(featureMatching)
 
 include_directories(${OpenCV_INCLUDE_DIRS} )
 include_directories(evaluate)
@@ -22,7 +23,7 @@ message(${PROJECT_SOURCE_DIR})
 
 add_executable( run main.cpp )
 target_link_libraries( bucket ${OpenCV_LIBS} )
-target_link_libraries( feature ${OpenCV_LIBS} bucket featureProcessing)
+target_link_libraries( feature ${OpenCV_LIBS} bucket featureProcessing featureMatching)
 target_link_libraries( utils evaluate_odometry feature ${OpenCV_LIBS} )
 target_link_libraries( visualOdometry utils bucket feature ${OpenCV_LIBS})
 

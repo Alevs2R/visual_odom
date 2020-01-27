@@ -6,6 +6,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
+#include "featureProcessing/nms.h"
 
 #include <iostream>
 #include <ctype.h>
@@ -43,7 +44,7 @@ void featureDetectionFast(cv::Mat image, std::vector<cv::Point2f>& points);
 
 void featureDetectionGoodFeaturesToTrack(cv::Mat image, std::vector<cv::Point2f>& points);
 
-void featureDetectionGeiger(cv::Mat image, std::vector<cv::Point2f>& points);
+std::vector<KeyPoint> featureDetectionGeiger(cv::Mat& image);
 
 void featureTracking(cv::Mat img_1, cv::Mat img_2, std::vector<cv::Point2f>& points1, std::vector<cv::Point2f>& points2, std::vector<uchar>& status);
 

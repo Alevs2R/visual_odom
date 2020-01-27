@@ -133,6 +133,11 @@ int main(int argc, char **argv)
     std::vector<FeaturePoint> oldFeaturePointsLeft;
     std::vector<FeaturePoint> currentFeaturePointsLeft;
 
+    std::vector<KeyPoint> pts1_l, pts1_r, pts2_l, pts2_r;
+
+    pts1_l = featureDetectionGeiger(imageLeft_t0);
+    pts1_r = featureDetectionGeiger(imageRight_t0);
+
     for (int frame_id = init_frame_id+1; frame_id < imagenames.size(); frame_id++)
     {
 
@@ -148,81 +153,81 @@ int main(int argc, char **argv)
         t_a = clock();
         std::vector<cv::Point2f> oldPointsLeft_t0 = currentVOFeatures.points;
 
-
-        std::vector<cv::Point2f> pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1;  
         matchingFeatures( imageLeft_t0, imageRight_t0,
                           imageLeft_t1, imageRight_t1, 
                           currentVOFeatures,
-                          pointsLeft_t0, 
-                          pointsRight_t0, 
-                          pointsLeft_t1, 
-                          pointsRight_t1);
+                          pts1_l, pts1_r, pts2_l, pts2_r);
 
         imageLeft_t0 = imageLeft_t1;
         imageRight_t0 = imageRight_t1;
 
-        std::vector<cv::Point2f>& currentPointsLeft_t0 = pointsLeft_t0;
-        std::vector<cv::Point2f>& currentPointsLeft_t1 = pointsLeft_t1;
+        pts1_l = std::move(pts2_l);
+        pts1_r = std::move(pts2_r);
+
+        continue;
+
+        // std::vector<cv::Point2f>& currentPointsLeft_t0 = pointsLeft_t0;
+        // std::vector<cv::Point2f>& currentPointsLeft_t1 = pointsLeft_t1;
         
-        std::vector<cv::Point2f> newPoints;
-        std::vector<bool> valid; // valid new points are ture
+        // std::vector<cv::Point2f> newPoints;
+        // std::vector<bool> valid; // valid new points are ture
 
-        // ---------------------
-        // Triangulate 3D Points
-        // ---------------------
-        cv::Mat points3D_t0, points4D_t0;
-        cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t0,  pointsRight_t0,  points4D_t0);
-        cv::convertPointsFromHomogeneous(points4D_t0.t(), points3D_t0);
+        // // ---------------------
+        // // Triangulate 3D Points
+        // // ---------------------
+        // cv::Mat points3D_t0, points4D_t0;
+        // cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t0,  pointsRight_t0,  points4D_t0);
+        // cv::convertPointsFromHomogeneous(points4D_t0.t(), points3D_t0);
 
-        cv::Mat points3D_t1, points4D_t1;
-        cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t1,  pointsRight_t1,  points4D_t1);
-        cv::convertPointsFromHomogeneous(points4D_t1.t(), points3D_t1);
+        // cv::Mat points3D_t1, points4D_t1;
+        // cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t1,  pointsRight_t1,  points4D_t1);
+        // cv::convertPointsFromHomogeneous(points4D_t1.t(), points3D_t1);
 
-        // ---------------------
-        // Tracking transfomation
-        // ---------------------
-        trackingFrame2Frame(projMatrl, projMatrr, pointsLeft_t0, pointsLeft_t1, points3D_t0, rotation, translation, false);
-        displayTracking(imageLeft_t1, pointsLeft_t0, pointsLeft_t1);
-
-
-        points4D = points4D_t0;
-        frame_pose.convertTo(frame_pose32, CV_32F);
-        points4D = frame_pose32 * points4D;
-        cv::convertPointsFromHomogeneous(points4D.t(), points3D);
-
-        // ------------------------------------------------
-        // Intergrating and display
-        // ------------------------------------------------
-
-        cv::Vec3f rotation_euler = rotationMatrixToEulerAngles(rotation);
+        // // ---------------------
+        // // Tracking transfomation
+        // // ---------------------
+        // trackingFrame2Frame(projMatrl, projMatrr, pointsLeft_t0, pointsLeft_t1, points3D_t0, rotation, translation, false);
+        // displayTracking(imageLeft_t1, pointsLeft_t0, pointsLeft_t1);
 
 
-        cv::Mat rigid_body_transformation;
+        // points4D = points4D_t0;
+        // frame_pose.convertTo(frame_pose32, CV_32F);
+        // points4D = frame_pose32 * points4D;
+        // cv::convertPointsFromHomogeneous(points4D.t(), points3D);
 
-        if(abs(rotation_euler[1])<0.1 && abs(rotation_euler[0])<0.1 && abs(rotation_euler[2])<0.1)
-        {
-            integrateOdometryStereo(frame_id, rigid_body_transformation, frame_pose, rotation, translation);
+        // // ------------------------------------------------
+        // // Intergrating and display
+        // // ------------------------------------------------
 
-        } else {
-
-            std::cout << "Too large rotation"  << std::endl;
-        }
-        t_b = clock();
-        float frame_time = 1000*(double)(t_b-t_a)/CLOCKS_PER_SEC;
-        float fps = 1000/frame_time;
-        cout << "[Info] frame times (ms): " << frame_time << endl;
-        cout << "[Info] FPS: " << fps << endl;
-
-        // std::cout << "rigid_body_transformation" << rigid_body_transformation << std::endl;
-        // std::cout << "rotation: " << rotation_euler << std::endl;
-        // std::cout << "translation: " << translation.t() << std::endl;
-        // std::cout << "frame_pose" << frame_pose << std::endl;
+        // cv::Vec3f rotation_euler = rotationMatrixToEulerAngles(rotation);
 
 
-        cv::Mat xyz = frame_pose.col(3).clone();
-        display(frame_id, trajectory, xyz, pose_matrix_gt, fps, display_ground_truth);
-        logToFile(result_poses_file, frame_pose);
-        cv::waitKey(1);
+        // cv::Mat rigid_body_transformation;
+
+        // if(abs(rotation_euler[1])<0.1 && abs(rotation_euler[0])<0.1 && abs(rotation_euler[2])<0.1)
+        // {
+        //     integrateOdometryStereo(frame_id, rigid_body_transformation, frame_pose, rotation, translation);
+
+        // } else {
+
+        //     std::cout << "Too large rotation"  << std::endl;
+        // }
+        // t_b = clock();
+        // float frame_time = 1000*(double)(t_b-t_a)/CLOCKS_PER_SEC;
+        // float fps = 1000/frame_time;
+        // cout << "[Info] frame times (ms): " << frame_time << endl;
+        // cout << "[Info] FPS: " << fps << endl;
+
+        // // std::cout << "rigid_body_transformation" << rigid_body_transformation << std::endl;
+        // // std::cout << "rotation: " << rotation_euler << std::endl;
+        // // std::cout << "translation: " << translation.t() << std::endl;
+        // // std::cout << "frame_pose" << frame_pose << std::endl;
+
+
+        // cv::Mat xyz = frame_pose.col(3).clone();
+        // display(frame_id, trajectory, xyz, pose_matrix_gt, fps, display_ground_truth);
+        // logToFile(result_poses_file, frame_pose);
+        // cv::waitKey(1);
 
     }
     fclose(result_poses_file);

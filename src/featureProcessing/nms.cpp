@@ -62,8 +62,8 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             bool failedBlobMin = checkMinimumValidity(blobF, f1min_val, f1min_i, f1min_j);
             if (!failedBlobMin) {
                 if (f1min_val <= -nms_tau) {
-                    KeyPoint newPoint = {
-                        cv::Point(f1min_j, f1min_i),
+                    KeyPoint newPoint {
+                        cv::Point2i(f1min_j, f1min_i),
                         f1min_val,
                         BLOB_MIN_CLASS
                     };
@@ -73,8 +73,8 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             bool failedBlobMax = checkMaximumValidity(blobF, f1max_val, f1max_i, f1max_j);
             if (!failedBlobMax) {
                 if (f1max_val >= nms_tau) {
-                    KeyPoint newPoint = {
-                        cv::Point(f1max_j, f1min_i),
+                    KeyPoint newPoint {
+                        cv::Point2i(f1max_j, f1min_i),
                         f1max_val,
                         BLOB_MAX_CLASS
                     };
@@ -84,8 +84,8 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             bool failedCornerMin = checkMinimumValidity(cornerF, f2min_val, f2min_i, f2min_j);
             if (!failedCornerMin) {
                 if (f2min_val <= -nms_tau) {
-                    KeyPoint newPoint = {
-                        cv::Point(f2min_j, f2min_i),
+                    KeyPoint newPoint{ 
+                        cv::Point2i(f2min_j, f2min_i),
                         f2min_val,
                         CORNER_MIN_CLASS
                     };
@@ -95,8 +95,8 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             bool failedCornerMax = checkMaximumValidity(cornerF, f2max_val, f2max_i, f2max_j);
             if (!failedCornerMax) {
                 if (f2max_val >= nms_tau) {
-                    KeyPoint newPoint = {
-                        cv::Point(f2max_j, f2max_i),
+                    KeyPoint newPoint {
+                        cv::Point2i(f2max_j, f2max_i),
                         f2max_val,
                         CORNER_MAX_CLASS
                     };

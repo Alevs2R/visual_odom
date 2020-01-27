@@ -1,4 +1,6 @@
 #include "visualOdometry.h"
+#include "featureProcessing/nms.h"
+#include "featureMatching/circularMatching.h"
 
 
 cv::Mat euler2rot(cv::Mat& rotationMatrix, const cv::Mat & euler)
@@ -76,49 +78,44 @@ void removeInvalidPoints(std::vector<cv::Point2f>& points, const std::vector<boo
     }
 }
 
-
-
 void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                       cv::Mat& imageLeft_t1, cv::Mat& imageRight_t1, 
                       FeatureSet& currentVOFeatures,
-                      std::vector<cv::Point2f>&  pointsLeft_t0, 
-                      std::vector<cv::Point2f>&  pointsRight_t0, 
-                      std::vector<cv::Point2f>&  pointsLeft_t1, 
-                      std::vector<cv::Point2f>&  pointsRight_t1)
+                      std::vector<KeyPoint>&  pts1_l, 
+                      std::vector<KeyPoint>&  pts1_r, 
+                      std::vector<KeyPoint>&  pts2_l, 
+                      std::vector<KeyPoint>&  pts2_r)
 {
-    std::vector<cv::Point2f>  pointsLeftReturn_t0;   // feature points to check cicular mathcing validation
 
-
-    if (currentVOFeatures.size() < 2000)
-    {
-
-        // append new features with old features
-        appendNewFeatures(imageLeft_t0, currentVOFeatures); 
+    pts2_l = featureDetectionGeiger(imageLeft_t1);
+    pts2_r = featureDetectionGeiger(imageRight_t1);
+    std::cout << "left features detected size " << pts2_l.size() << std::endl;
+    std::cout << "right features detected size " << pts2_r.size() << std::endl;
+    std::vector<Match> matches = performCircularMatching(pts1_l, pts2_l, pts1_r, pts2_r);
   
-         std::cout << "Current feature set size: " << currentVOFeatures.points.size() << std::endl;
-    }
+    std::cout << "Match set size: " << matches.size() << std::endl;
 
     // --------------------------------------------------------
     // Feature tracking using KLT tracker, bucketing and circular matching
     // --------------------------------------------------------
-    int bucket_size = 50;
-    int features_per_bucket = 1;
-    bucketingFeatures(imageLeft_t0, currentVOFeatures, bucket_size, features_per_bucket);
+    // int bucket_size = 50;
+    // int features_per_bucket = 5;
+    // bucketingFeatures(imageLeft_t0, currentVOFeatures, bucket_size, features_per_bucket);
 
-    pointsLeft_t0 = currentVOFeatures.points;
+    // pointsLeft_t0 = currentVOFeatures.points;
     
-    circularMatching(imageLeft_t0, imageRight_t0, imageLeft_t1, imageRight_t1,
-                     pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1, pointsLeftReturn_t0, currentVOFeatures);
+    // circularMatching(imageLeft_t0, imageRight_t0, imageLeft_t1, imageRight_t1,
+    //                  pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1, pointsLeftReturn_t0, currentVOFeatures);
 
-    std::vector<bool> status;
-    checkValidMatch(pointsLeft_t0, pointsLeftReturn_t0, status, 0);
+    // std::vector<bool> status;
+    // checkValidMatch(pointsLeft_t0, pointsLeftReturn_t0, status, 0);
 
-    removeInvalidPoints(pointsLeft_t0, status);
-    removeInvalidPoints(pointsLeft_t1, status);
-    removeInvalidPoints(pointsRight_t0, status);
-    removeInvalidPoints(pointsRight_t1, status);
+    // removeInvalidPoints(pointsLeft_t0, status);
+    // removeInvalidPoints(pointsLeft_t1, status);
+    // removeInvalidPoints(pointsRight_t0, status);
+    // removeInvalidPoints(pointsRight_t1, status);
 
-    currentVOFeatures.points = pointsLeft_t1;
+    // currentVOFeatures.points = pointsLeft_t1;
 
 }
 
