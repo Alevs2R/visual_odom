@@ -22,7 +22,6 @@ void fillDescriptor(int startindex, int16_t* ar, int x, int y, cv::Mat& I) {
 }
 
 void computeDescriptors(cv::Mat& I_dx, cv::Mat& I_dy, std::vector<KeyPoint>& keypts_in) {
-    int counter = 0;
     for (auto& kp: keypts_in) {
         int x = kp.point.x;
         int y = kp.point.y;

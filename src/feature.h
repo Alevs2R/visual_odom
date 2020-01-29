@@ -40,8 +40,6 @@ struct FeatureSet {
 
 void deleteUnmatchFeatures(std::vector<cv::Point2f>& points0, std::vector<cv::Point2f>& points1, std::vector<uchar>& status);
 
-void featureDetectionFast(cv::Mat image, std::vector<cv::Point2f>& points);
-
 void featureDetectionGoodFeaturesToTrack(cv::Mat image, std::vector<cv::Point2f>& points);
 
 std::vector<KeyPoint> featureDetectionGeiger(cv::Mat& image);

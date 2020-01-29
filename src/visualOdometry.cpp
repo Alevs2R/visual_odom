@@ -1,6 +1,8 @@
 #include "visualOdometry.h"
 #include "featureProcessing/nms.h"
 #include "featureMatching/circularMatching.h"
+#include "omp.h"
+
 
 
 cv::Mat euler2rot(cv::Mat& rotationMatrix, const cv::Mat & euler)
@@ -78,22 +80,42 @@ void removeInvalidPoints(std::vector<cv::Point2f>& points, const std::vector<boo
     }
 }
 
-void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
+std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                       cv::Mat& imageLeft_t1, cv::Mat& imageRight_t1, 
                       FeatureSet& currentVOFeatures,
                       std::vector<KeyPoint>&  pts1_l, 
                       std::vector<KeyPoint>&  pts1_r, 
                       std::vector<KeyPoint>&  pts2_l, 
-                      std::vector<KeyPoint>&  pts2_r)
+                      std::vector<KeyPoint>&  pts2_r
+                      )
 {
+
+    double start = omp_get_wtime();
 
     pts2_l = featureDetectionGeiger(imageLeft_t1);
     pts2_r = featureDetectionGeiger(imageRight_t1);
     std::cout << "left features detected size " << pts2_l.size() << std::endl;
-    std::cout << "right features detected size " << pts2_r.size() << std::endl;
-    std::vector<Match> matches = performCircularMatching(pts1_l, pts2_l, pts1_r, pts2_r);
-  
+    printf("feature detecting %f sec\n",omp_get_wtime() - start);  
+    start = omp_get_wtime();
+
+    std::vector<Match> matches = performCircularMatching(imageLeft_t0.cols, imageLeft_t0.rows, pts1_l, pts2_l, pts1_r, pts2_r);
+    printf("matching %f sec\n",omp_get_wtime() - start);  
     std::cout << "Match set size: " << matches.size() << std::endl;
+      // -----------------------------------------
+    //   int radius = 2;
+    //   cv::Mat vis;
+    //   cv::cvtColor(imageLeft_t1, vis, CV_GRAY2BGR, 3);
+    //   for (int i = 0; i < pts2_l.size(); i++)
+    //   {
+    //     cv::circle(vis, cvPoint(pts2_l[i].point.x, pts2_l[i].point.y), radius, CV_RGB(0,255,0));
+    //   }
+    //   cv::imshow("vis ", vis );  
+    //   cv::waitKey(1);
+
+    displayTracking(imageLeft_t1, matches);
+    return matches;
+
+    // cv::waitKey();
 
     // --------------------------------------------------------
     // Feature tracking using KLT tracker, bucketing and circular matching
@@ -174,8 +196,7 @@ void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,
 }
 
 void displayTracking(cv::Mat& imageLeft_t1, 
-                     std::vector<cv::Point2f>&  pointsLeft_t0,
-                     std::vector<cv::Point2f>&  pointsLeft_t1)
+                     std::vector<Match>&  matches)
 {
       // -----------------------------------------
       // Display feature racking
@@ -186,20 +207,13 @@ void displayTracking(cv::Mat& imageLeft_t1,
       cv::cvtColor(imageLeft_t1, vis, CV_GRAY2BGR, 3);
 
 
-      for (int i = 0; i < pointsLeft_t0.size(); i++)
+      for (int i = 0; i < matches.size(); i++)
       {
-          cv::circle(vis, cvPoint(pointsLeft_t0[i].x, pointsLeft_t0[i].y), radius, CV_RGB(0,255,0));
-      }
-
-      for (int i = 0; i < pointsLeft_t1.size(); i++)
-      {
-          cv::circle(vis, cvPoint(pointsLeft_t1[i].x, pointsLeft_t1[i].y), radius, CV_RGB(255,0,0));
-      }
-
-      for (int i = 0; i < pointsLeft_t1.size(); i++)
-      {
-          cv::line(vis, pointsLeft_t0[i], pointsLeft_t1[i], CV_RGB(0,255,0));
+        cv::circle(vis, cvPoint(matches[i].pt1_l->point.x, matches[i].pt1_l->point.y), radius, CV_RGB(0,255,0));
+        cv::circle(vis, cvPoint(matches[i].pt2_l->point.x, matches[i].pt2_l->point.y), radius, CV_RGB(255,0,0));
+        cv::line(vis, matches[i].pt1_l->point, matches[i].pt2_l->point, CV_RGB(0,255,0));
       }
 
       cv::imshow("vis ", vis );  
+      cv::waitKey(1);
 }

@@ -3,3 +3,12 @@ build/
 results/
 poses/
 debug/
+VisualOdometry.build
+CMakeFiles
+CMakeCache.txt
+VisualOdometry.xcodeproj
+*.makeDebug
+*.xctestrun
+CMakeScripts
+cmake_install.cmake
+Release

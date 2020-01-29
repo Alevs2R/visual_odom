@@ -2,15 +2,12 @@
 #include <iostream>
 
 int nms_n = 8;
-int nms_tau = 150;
+int nms_tau = 90;
 int margin = 21;
 
 std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
     int width = blobF.cols;
     int height = blobF.rows;
-    int num = 0;
-
-
 
     std::vector<KeyPoint> keypoints = std::vector<KeyPoint>();
 

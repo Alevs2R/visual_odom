@@ -14,8 +14,9 @@
 #include <sstream>
 #include <fstream>
 #include <string>
-#include <experimental/filesystem>
-
+#include <filesystem>
+#include <time.h>       /* time */
+#include <stdlib.h>     /* srand, rand */
 
 
 #include "feature.h"
@@ -26,7 +27,7 @@
 #include "featureProcessing/filters.h"
 
 using namespace std;
-namespace fs = std::experimental::filesystem;
+namespace fs = std::__fs::filesystem;
 
 int main(int argc, char **argv)
 {
@@ -54,6 +55,7 @@ int main(int argc, char **argv)
     // Load images and calibration parameters
     // -----------------------------------------
     bool display_ground_truth = false;
+    srand (time(NULL)); // rand for keypoint ids
     std::vector<Matrix> pose_matrix_gt;
     if(argc == 4)
     {   display_ground_truth = true;
@@ -153,7 +155,7 @@ int main(int argc, char **argv)
         t_a = clock();
         std::vector<cv::Point2f> oldPointsLeft_t0 = currentVOFeatures.points;
 
-        matchingFeatures( imageLeft_t0, imageRight_t0,
+        std::vector<Match> matches = matchingFeatures( imageLeft_t0, imageRight_t0,
                           imageLeft_t1, imageRight_t1, 
                           currentVOFeatures,
                           pts1_l, pts1_r, pts2_l, pts2_r);
@@ -161,16 +163,16 @@ int main(int argc, char **argv)
         imageLeft_t0 = imageLeft_t1;
         imageRight_t0 = imageRight_t1;
 
-        pts1_l = std::move(pts2_l);
-        pts1_r = std::move(pts2_r);
+        std::vector<cv::Point2f> pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1;  
 
-        continue;
+        for (auto& match: matches) {
+            pointsLeft_t0.push_back(cv::Point2f(match.pt1_l->point));
+            pointsRight_t0.push_back(cv::Point2f(match.pt1_r->point));
+            pointsLeft_t1.push_back(cv::Point2f(match.pt2_l->point));
+            pointsRight_t1.push_back(cv::Point2f(match.pt2_r->point));
+        }
 
-        // std::vector<cv::Point2f>& currentPointsLeft_t0 = pointsLeft_t0;
-        // std::vector<cv::Point2f>& currentPointsLeft_t1 = pointsLeft_t1;
-        
-        // std::vector<cv::Point2f> newPoints;
-        // std::vector<bool> valid; // valid new points are ture
+        // continue;
 
         // // ---------------------
         // // Triangulate 3D Points
@@ -187,7 +189,7 @@ int main(int argc, char **argv)
         // // Tracking transfomation
         // // ---------------------
         // trackingFrame2Frame(projMatrl, projMatrr, pointsLeft_t0, pointsLeft_t1, points3D_t0, rotation, translation, false);
-        // displayTracking(imageLeft_t1, pointsLeft_t0, pointsLeft_t1);
+        // // displayTracking(imageLeft_t1, pointsLeft_t0, pointsLeft_t1);
 
 
         // points4D = points4D_t0;
@@ -212,22 +214,20 @@ int main(int argc, char **argv)
 
         //     std::cout << "Too large rotation"  << std::endl;
         // }
-        // t_b = clock();
-        // float frame_time = 1000*(double)(t_b-t_a)/CLOCKS_PER_SEC;
-        // float fps = 1000/frame_time;
-        // cout << "[Info] frame times (ms): " << frame_time << endl;
-        // cout << "[Info] FPS: " << fps << endl;
 
-        // // std::cout << "rigid_body_transformation" << rigid_body_transformation << std::endl;
-        // // std::cout << "rotation: " << rotation_euler << std::endl;
-        // // std::cout << "translation: " << translation.t() << std::endl;
-        // // std::cout << "frame_pose" << frame_pose << std::endl;
+        // std::cout << "rigid_body_transformation" << rigid_body_transformation << std::endl;
+        // std::cout << "rotation: " << rotation_euler << std::endl;
+        // std::cout << "translation: " << translation.t() << std::endl;
+        // std::cout << "frame_pose" << frame_pose << std::endl;
 
 
         // cv::Mat xyz = frame_pose.col(3).clone();
-        // display(frame_id, trajectory, xyz, pose_matrix_gt, fps, display_ground_truth);
+        // display(frame_id, trajectory, xyz, pose_matrix_gt, 10, display_ground_truth);
         // logToFile(result_poses_file, frame_pose);
         // cv::waitKey(1);
+
+        pts1_l = std::move(pts2_l);
+        pts1_r = std::move(pts2_r);
 
     }
     fclose(result_poses_file);

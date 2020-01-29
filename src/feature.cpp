@@ -35,26 +35,8 @@ std::vector<KeyPoint> featureDetectionGeiger(cv::Mat& image)
     std::vector<KeyPoint> keypts = nonMaximaSuppression(blobF, cornerF);
     computeDescriptors(gradX, gradY, keypts);
     return keypts;
-
-   // cv::Mat vis;
-  // cv::cvtColor(image, vis, CV_GRAY2BGR, 3);
-
-   // int radius = 2;
-    // circle(vis, cvPoint(keypts[i].point.x, keypts[i].point.y), radius, CV_RGB(255,0,0));
-   //cv::imshow("img", vis);
-    // cv::waitKey();
-    // exit(0);
 }
 
-void featureDetectionFast(cv::Mat image, std::vector<cv::Point2f>& points)  
-{   
-//uses FAST as for feature dection, modify parameters as necessary
-  std::vector<cv::KeyPoint> keypoints;
-  int fast_threshold = 20;
-  bool nonmaxSuppression = true;
-  cv::FAST(image, keypoints, fast_threshold, nonmaxSuppression);
-  cv::KeyPoint::convert(keypoints, points, std::vector<int>());
-}
 
 void featureDetectionGoodFeaturesToTrack(cv::Mat image, std::vector<cv::Point2f>& points)  
 {   
@@ -125,38 +107,6 @@ void deleteUnmatchFeaturesCircle(std::vector<cv::Point2f>& points0, std::vector<
      }  
 }
 
-void circularMatching(cv::Mat img_l_0, cv::Mat img_r_0, cv::Mat img_l_1, cv::Mat img_r_1,
-                      std::vector<cv::Point2f>& points_l_0, std::vector<cv::Point2f>& points_r_0,
-                      std::vector<cv::Point2f>& points_l_1, std::vector<cv::Point2f>& points_r_1,
-                      std::vector<cv::Point2f>& points_l_0_return,
-                      FeatureSet& current_features) { 
-  
-  //this function automatically gets rid of points for which tracking fails
-
-  std::vector<float> err;                    
-  cv::Size winSize=cv::Size(21,21);                                                                                             
-  cv::TermCriteria termcrit=cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 30, 0.01);
-
-  std::vector<uchar> status0;
-  std::vector<uchar> status1;
-  std::vector<uchar> status2;
-  std::vector<uchar> status3;
-
-  clock_t tic = clock();
-  calcOpticalFlowPyrLK(img_l_0, img_r_0, points_l_0, points_r_0, status0, err, winSize, 3, termcrit, 0, 0.001);
-  calcOpticalFlowPyrLK(img_r_0, img_r_1, points_r_0, points_r_1, status1, err, winSize, 3, termcrit, 0, 0.001);
-  calcOpticalFlowPyrLK(img_r_1, img_l_1, points_r_1, points_l_1, status2, err, winSize, 3, termcrit, 0, 0.001);
-  calcOpticalFlowPyrLK(img_l_1, img_l_0, points_l_1, points_l_0_return, status3, err, winSize, 3, termcrit, 0, 0.001);
-  clock_t toc = clock();
-  std::cerr << "calcOpticalFlowPyrLK time: " << float(toc - tic)/CLOCKS_PER_SEC*1000 << "ms" << std::endl;
-
-
-  deleteUnmatchFeaturesCircle(points_l_0, points_r_0, points_r_1, points_l_1, points_l_0_return,
-                        status0, status1, status2, status3, current_features.ages);
-
-  // std::cout << "points : " << points_l_0.size() << " "<< points_r_0.size() << " "<< points_r_1.size() << " "<< points_l_1.size() << " "<<std::endl;
-}
-
 
 void bucketingFeatures(cv::Mat& image, FeatureSet& current_features, int bucket_size, int features_per_bucket)
 {
@@ -168,7 +118,6 @@ void bucketingFeatures(cv::Mat& image, FeatureSet& current_features, int bucket_
     int image_width = image.cols;
     int buckets_nums_height = image_height/bucket_size;
     int buckets_nums_width = image_width/bucket_size;
-    int buckets_number = buckets_nums_height * buckets_nums_width;
 
     std::vector<Bucket> Buckets;
 
