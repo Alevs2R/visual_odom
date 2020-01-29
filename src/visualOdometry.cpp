@@ -1,6 +1,7 @@
 #include "visualOdometry.h"
 #include "featureProcessing/nms.h"
 #include "featureMatching/circularMatching.h"
+#include "featureMatching/removeOutliers.h"
 #include "omp.h"
 
 
@@ -45,41 +46,6 @@ cv::Mat euler2rot(cv::Mat& rotationMatrix, const cv::Mat & euler)
   return rotationMatrix;
 }
 
-void checkValidMatch(std::vector<cv::Point2f>& points, std::vector<cv::Point2f>& points_return, std::vector<bool>& status, int threshold)
-{
-    int offset;
-    for (int i = 0; i < points.size(); i++)
-    {
-        offset = std::max(std::abs(points[i].x - points_return[i].x), std::abs(points[i].y - points_return[i].y));
-        // std::cout << offset << ", ";
-
-        if(offset > threshold)
-        {
-            status.push_back(false);
-        }
-        else
-        {
-            status.push_back(true);
-        }
-    }
-}
-
-void removeInvalidPoints(std::vector<cv::Point2f>& points, const std::vector<bool>& status)
-{
-    int index = 0;
-    for (int i = 0; i < status.size(); i++)
-    {
-        if (status[i] == false)
-        {
-            points.erase(points.begin() + index);
-        }
-        else
-        {
-            index ++;
-        }
-    }
-}
-
 std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                       cv::Mat& imageLeft_t1, cv::Mat& imageRight_t1, 
                       FeatureSet& currentVOFeatures,
@@ -99,8 +65,12 @@ std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t
     start = omp_get_wtime();
 
     std::vector<Match> matches = performCircularMatching(imageLeft_t0.cols, imageLeft_t0.rows, pts1_l, pts2_l, pts1_r, pts2_r);
-    printf("matching %f sec\n",omp_get_wtime() - start);  
     std::cout << "Match set size: " << matches.size() << std::endl;
+    printf("circular matching %f sec\n",omp_get_wtime() - start);  
+    start = omp_get_wtime();
+    auto filteredMatches = removeOutliers(imageLeft_t0, imageRight_t0, imageLeft_t1, imageRight_t1, matches);
+    printf("removing outliers %f sec\n",omp_get_wtime() - start);  
+    std::cout << "After filtering there is a match size: " << filteredMatches.size() << std::endl;
       // -----------------------------------------
     //   int radius = 2;
     //   cv::Mat vis;
@@ -112,8 +82,8 @@ std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t
     //   cv::imshow("vis ", vis );  
     //   cv::waitKey(1);
 
-    displayTracking(imageLeft_t1, matches);
-    return matches;
+    displayTracking(imageLeft_t1, filteredMatches);
+    return filteredMatches;
 
     // cv::waitKey();
 
@@ -205,8 +175,6 @@ void displayTracking(cv::Mat& imageLeft_t1,
       cv::Mat vis;
 
       cv::cvtColor(imageLeft_t1, vis, CV_GRAY2BGR, 3);
-
-
       for (int i = 0; i < matches.size(); i++)
       {
         cv::circle(vis, cvPoint(matches[i].pt1_l->point.x, matches[i].pt1_l->point.y), radius, CV_RGB(0,255,0));

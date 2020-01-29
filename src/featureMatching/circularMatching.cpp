@@ -1,14 +1,3 @@
-#define MATCH_BINSIZE 50            // matching bin width/height (affects efficiency only)
-#define MATCH_RADIUS 100          // matching radius (du/dv in pixels)
-#define MATCH_DISP_TOLERANCE 1   // dx tolerance for stereo matches (in pixels)
-#define MATCH_NCC_WINDOW 21      // window size of the patch for normalized cross-correlation
-#define MATCH_NCC_TOLERANCE 0.3  // threshold for normalized cross-correlation
-// TO-DO: add subpixel-refinement using parabolic fitting
-#define MATCH_REFINEMENT 2       // refinement (0=none,1=pixel,2=subpixel)
-
-#define OPENCV_TRAITS_ENABLE_DEPRECATED
-
-
 #include "circularMatching.h"
 #include <iostream>
 #include <cmath>

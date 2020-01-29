@@ -1,10 +1,6 @@
 #include "nms.h"
 #include <iostream>
 
-int nms_n = 8;
-int nms_tau = 90;
-int margin = 21;
-
 std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
     int width = blobF.cols;
     int height = blobF.rows;
@@ -13,8 +9,8 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
 
     int i,j;
 
-    for (i = nms_n + margin; i <= height - nms_n - margin; i+=nms_n+1){
-        for (j = nms_n + margin; j <= width - nms_n - margin; j+=nms_n+1){
+    for (i = NMS_N + NMS_MARGIN; i <= height - NMS_N - NMS_MARGIN; i+=NMS_N+1){
+        for (j = NMS_N + NMS_MARGIN; j <= width - NMS_N - NMS_MARGIN; j+=NMS_N+1){
             int16_t f1min_i = i, f1min_j = j, f1max_i = i, f1max_j = j;
             int16_t f2min_i = i, f2min_j = j, f2max_i = i, f2max_j = j;
 
@@ -26,8 +22,8 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             // Step a)
             // Partitions input image into blocks of sizes (n + 1) x (n + 1).
             // Search for maxima/minima within each block.
-            for (int i2 = i; i2 <=i + nms_n; i2++){
-                for (int j2 = j; j2 <= j + nms_n; j2++) {
+            for (int i2 = i; i2 <=i + NMS_N; i2++){
+                for (int j2 = j; j2 <= j + NMS_N; j2++) {
                     // for blob detector
                     int16_t currval = blobF.at<int16_t>(i2, j2);
                     if (currval < f1min_val) {        
@@ -58,7 +54,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
 
             bool failedBlobMin = checkMinimumValidity(blobF, f1min_val, f1min_i, f1min_j);
             if (!failedBlobMin) {
-                if (f1min_val <= -nms_tau) {
+                if (f1min_val <= -NMS_TAU) {
                     KeyPoint newPoint {
                         cv::Point2i(f1min_j, f1min_i),
                         f1min_val,
@@ -69,7 +65,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             }
             bool failedBlobMax = checkMaximumValidity(blobF, f1max_val, f1max_i, f1max_j);
             if (!failedBlobMax) {
-                if (f1max_val >= nms_tau) {
+                if (f1max_val >= NMS_TAU) {
                     KeyPoint newPoint {
                         cv::Point2i(f1max_j, f1min_i),
                         f1max_val,
@@ -80,7 +76,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             }
             bool failedCornerMin = checkMinimumValidity(cornerF, f2min_val, f2min_i, f2min_j);
             if (!failedCornerMin) {
-                if (f2min_val <= -nms_tau) {
+                if (f2min_val <= -NMS_TAU) {
                     KeyPoint newPoint{ 
                         cv::Point2i(f2min_j, f2min_i),
                         f2min_val,
@@ -91,7 +87,7 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
             }
             bool failedCornerMax = checkMaximumValidity(cornerF, f2max_val, f2max_i, f2max_j);
             if (!failedCornerMax) {
-                if (f2max_val >= nms_tau) {
+                if (f2max_val >= NMS_TAU) {
                     KeyPoint newPoint {
                         cv::Point2i(f2max_j, f2max_i),
                         f2max_val,
@@ -108,13 +104,13 @@ std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF){
 bool checkMaximumValidity (cv::Mat& I, int fmax, int fmax_i, int fmax_j) {
     int width = I.cols;
     int height = I.rows;
-    int i_last = std::min(fmax_i + nms_n, height - 1 - margin);
-    int j_last = std::min(fmax_j + nms_n, width - 1 - margin);
+    int i_last = std::min(fmax_i + NMS_N, height - 1 - NMS_MARGIN);
+    int j_last = std::min(fmax_j + NMS_N, width - 1 - NMS_MARGIN);
     int16_t maxval = 0;
     int max_i, max_j;
 
-    for (int i = fmax_i - nms_n; i <= i_last; i++){
-        for (int j = fmax_j - nms_n; j <= j_last; j++){
+    for (int i = fmax_i - NMS_N; i <= i_last; i++){
+        for (int j = fmax_j - NMS_N; j <= j_last; j++){
             int16_t currval = I.at<int16_t>(i, j);
             if (currval > maxval) {
                 maxval = currval;
@@ -133,13 +129,13 @@ bool checkMaximumValidity (cv::Mat& I, int fmax, int fmax_i, int fmax_j) {
 bool checkMinimumValidity (cv::Mat& I, int fmin, int fmin_i, int fmin_j) {
     int width = I.cols;
     int height = I.rows;
-    int i_last = std::min(fmin_i + nms_n, height - 1 - margin);
-    int j_last = std::min(fmin_j + nms_n, width - 1 - margin);
+    int i_last = std::min(fmin_i + NMS_N, height - 1 - NMS_MARGIN);
+    int j_last = std::min(fmin_j + NMS_N, width - 1 - NMS_MARGIN);
     int16_t minval = INT16_MAX; // MAXIMUM FOR int!
     int min_i, min_j;
 
-    for (int i = fmin_i - nms_n; i <= i_last; i++){
-        for (int j = fmin_j - nms_n; j <= j_last; j++){
+    for (int i = fmin_i - NMS_N; i <= i_last; i++){
+        for (int j = fmin_j - NMS_N; j <= j_last; j++){
             int16_t currval = I.at<int16_t>(i, j);
             if (currval < minval) {
                 minval = currval;

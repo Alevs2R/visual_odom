@@ -1,5 +1,4 @@
 #include "computeDescriptors.h"
-#include "nms.h"
 #include <iostream>
 
 void fillDescriptor(int startindex, int16_t* ar, int x, int y, cv::Mat& I) {
