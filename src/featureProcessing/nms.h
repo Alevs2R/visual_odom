@@ -12,7 +12,7 @@
 #define CORNER_MAX_CLASS 4
 
 std::vector<KeyPoint> nonMaximaSuppression(cv::Mat& blobF, cv::Mat& cornerF);
-bool checkMinimumValidity (cv::Mat& I, int fmin, int fmin_i, int fmin_j);
-bool checkMaximumValidity (cv::Mat&  I, int fmax, int fmax_i, int fmax_j);
+bool maximumValidityFailed (cv::Mat& I, double detectedMax, cv::Point2i& p);
+bool minimumValidityFailed (cv::Mat& I, double detectedMin, cv::Point2i& p);
 
 #endif

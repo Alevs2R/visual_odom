@@ -72,17 +72,17 @@ std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t
     printf("removing outliers %f sec\n",omp_get_wtime() - start);  
     std::cout << "After filtering there is a match size: " << filteredMatches.size() << std::endl;
       // -----------------------------------------
-    //   int radius = 2;
-    //   cv::Mat vis;
-    //   cv::cvtColor(imageLeft_t1, vis, CV_GRAY2BGR, 3);
-    //   for (int i = 0; i < pts2_l.size(); i++)
-    //   {
-    //     cv::circle(vis, cvPoint(pts2_l[i].point.x, pts2_l[i].point.y), radius, CV_RGB(0,255,0));
-    //   }
-    //   cv::imshow("vis ", vis );  
-    //   cv::waitKey(1);
+    int radius = 2;
+    cv::Mat vis;
+    cv::cvtColor(imageLeft_t1, vis, CV_GRAY2BGR, 3);
+    for (int i = 0; i < pts2_l.size(); i++)
+    {
+      cv::circle(vis, cvPoint(pts2_l[i].point.x, pts2_l[i].point.y), radius, CV_RGB(0,255,0));
+    }
+    cv::imshow("vis2", vis );  
+    cv::waitKey(1);
 
-    displayTracking(imageLeft_t1, filteredMatches);
+    // displayTracking(imageLeft_t1, filteredMatches);
     return filteredMatches;
 
     // cv::waitKey();

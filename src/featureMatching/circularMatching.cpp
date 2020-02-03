@@ -100,6 +100,7 @@ std::vector<Match> performCircularMatching(int width, int height, std::vector<Ke
 
         if (!pt1_r_matched) continue;
 
+
         findMatchSAD(*pt1_r, bins2_r, 0, pt2_r, pt2_r_matched);  
  
         if (!pt2_r_matched) continue;

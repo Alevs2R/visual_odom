@@ -15,7 +15,7 @@
 #define MATCH_REFINEMENT 2       // refinement (0=none,1=pixel,2=subpixel)
 
 #define MATCH_NCC_WINDOW 31     // window size of the patch for normalized cross-correlation
-#define MATCH_NCC_TOLERANCE 0.33 // threshold for normalized cross-correlation
+#define MATCH_NCC_TOLERANCE 0.3 // threshold for normalized cross-correlation
 
 #define OPENCV_TRAITS_ENABLE_DEPRECATED
 

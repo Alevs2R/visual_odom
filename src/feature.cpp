@@ -2,7 +2,7 @@
 #include "bucket.h"
 #include "featureProcessing/filters.h"
 #include "featureProcessing/computeDescriptors.h"
-
+#include "omp.h"
 
 
 void deleteUnmatchFeatures(std::vector<cv::Point2f>& points0, std::vector<cv::Point2f>& points1, std::vector<uchar>& status)
@@ -31,8 +31,9 @@ std::vector<KeyPoint> featureDetectionGeiger(cv::Mat& image)
     gradY = gradientY(image);
     cornerF = corner5x5(image);
     blobF = blob5x5(image);
-
+    double start = omp_get_wtime();
     std::vector<KeyPoint> keypts = nonMaximaSuppression(blobF, cornerF);
+    printf("nms %f sec\n",omp_get_wtime() - start);   
     computeDescriptors(gradX, gradY, keypts);
     return keypts;
 }
