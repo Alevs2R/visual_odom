@@ -26,7 +26,7 @@ struct KeyPoint {
     int16_t descriptor[32];
     int age = 0;
     int id = rand();
-    int parentKeyPointInd = -1;
+    cv::Vec3f triangulated;
     KeyPoint(cv::Point2i point, int16_t value, int pointClass) : point(point), value(value), pointClass(pointClass) {}
     KeyPoint(){}
 };

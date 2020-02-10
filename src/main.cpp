@@ -110,7 +110,6 @@ int main(int argc, char **argv)
 
     std::cout << "frame_pose " << frame_pose << std::endl;
     cv::Mat trajectory = cv::Mat::zeros(1200, 1400, CV_8UC3);
-    FeatureSet currentVOFeatures;
     cv::Mat points4D, points3D;
     int init_frame_id = 0;
 
@@ -164,12 +163,17 @@ int main(int argc, char **argv)
         cv::Mat imageRight_t1_color, imageRight_t1;  
         loadImageRight(imageRight_t1_color, imageRight_t1, frame_id, filepath, imagenames);
 
-        std::vector<cv::Point2f> oldPointsLeft_t0 = currentVOFeatures.points;
+
+        cv::Mat transformation;
+        cv::Mat addup = (cv::Mat_<double>(1, 4) << 0, 0, 0, 1);
+        cv::hconcat(rotation, -translation, transformation);
+        cv::vconcat(transformation, addup, transformation);
+
+        // transformation = transformation;
 
         std::vector<Match> matches = matchingFeatures( imageLeft_t0, imageRight_t0,
                           imageLeft_t1, imageRight_t1, 
-                          currentVOFeatures,
-                          pts1_l, pts1_r, pts2_l, pts2_r);
+                          pts1_l, pts1_r, pts2_l, pts2_r, projMatrr, projMatrl, transformation);
 
         imageLeft_t0 = imageLeft_t1;
         imageRight_t0 = imageRight_t1;
@@ -192,9 +196,10 @@ int main(int argc, char **argv)
 
         double start = omp_get_wtime();
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t0,  pointsRight_t0,  points4D_t0);
+        printf("triangulating %f \n",omp_get_wtime() - start);  
         cv::convertPointsFromHomogeneous(points4D_t0.t(), points3D_t0);
 
-        // displayDepthMap(points3D_t0, imageLeft_t0, rmatrix, tvec_l, cameraMatrl, distCoeffs, 30.0f);
+        displayDepthMap(points3D_t0, imageLeft_t0, rmatrix, tvec_l, cameraMatrl, distCoeffs, 30.0f);
 
         cv::Mat points3D_t1, points4D_t1;
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t1,  pointsRight_t1,  points4D_t1);

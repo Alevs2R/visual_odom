@@ -1,6 +1,6 @@
 #include "utils.h"
 #include "evaluate_odometry.h"
-
+#include "omp.h"
 
 
 // --------------------------------
@@ -196,9 +196,11 @@ void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std
 
 /* Performs projecting of 3d points to 2d and shows the result */
 /* tune distance threshold parameter to get better visualization */
+/* points3D_t0 is Nx1 matrix with 3 channels */
 
 void displayDepthMap(cv::Mat& points3D_t0, cv::Mat& image, cv::Mat& rvec, cv::Mat& tvec, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, float distanceThreshold = -1) {
         std::vector<cv::Point2f> imagePointsl;
+
         cv::projectPoints(points3D_t0, rvec, tvec, cameraMatrix, distCoeffs, imagePointsl);
         
         cv::Mat depth_vector;

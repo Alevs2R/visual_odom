@@ -48,14 +48,15 @@ cv::Mat euler2rot(cv::Mat& rotationMatrix, const cv::Mat & euler)
 
 std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                       cv::Mat& imageLeft_t1, cv::Mat& imageRight_t1, 
-                      FeatureSet& currentVOFeatures,
                       std::vector<KeyPoint>&  pts1_l, 
                       std::vector<KeyPoint>&  pts1_r, 
                       std::vector<KeyPoint>&  pts2_l, 
-                      std::vector<KeyPoint>&  pts2_r
+                      std::vector<KeyPoint>&  pts2_r,
+                      cv::Mat& projMatrl,
+                      cv::Mat& projMatrr,
+                      cv::Mat& transform
                       )
 {
-
     double start = omp_get_wtime();
 
     pts2_l = featureDetectionGeiger(imageLeft_t1);
@@ -64,7 +65,7 @@ std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t
     printf("feature detecting %f sec\n",omp_get_wtime() - start);  
     start = omp_get_wtime();
 
-    std::vector<Match> matches = performCircularMatching(imageLeft_t0.cols, imageLeft_t0.rows, pts1_l, pts2_l, pts1_r, pts2_r);
+    std::vector<Match> matches = performCircularMatching(imageRight_t0, imageLeft_t0.cols, imageLeft_t0.rows, pts1_l, pts2_l, pts1_r, pts2_r, projMatrl, projMatrr, transform);
     std::cout << "Match set size: " << matches.size() << std::endl;
     printf("circular matching %f sec\n",omp_get_wtime() - start);  
     start = omp_get_wtime();

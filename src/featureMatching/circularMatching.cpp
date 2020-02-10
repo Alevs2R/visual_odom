@@ -2,6 +2,10 @@
 #include <iostream>
 #include <cmath>
 #include "omp.h"
+#include "opencv2/calib3d/calib3d.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+
 
 typedef std::vector<std::vector<std::vector<KeyPoint*>>> BIN_VECTOR;
 
@@ -69,12 +73,13 @@ void createIndexVector(std::vector<KeyPoint>& points, BIN_VECTOR& bins) {
     }
 }
 
-std::vector<Match> performCircularMatching(int width, int height, std::vector<KeyPoint>& pts1_l, std::vector<KeyPoint>& pts2_l,
-                             std::vector<KeyPoint>& pts1_r, std::vector<KeyPoint>& pts2_r) {
+std::vector<Match> performCircularMatching(cv::Mat& img_r, int width, int height, std::vector<KeyPoint>& pts1_l, std::vector<KeyPoint>& pts2_l,
+                             std::vector<KeyPoint>& pts1_r, std::vector<KeyPoint>& pts2_r, cv::Mat& projMatrl, cv::Mat& projMatrr, cv::Mat transform) {
     // TODO execute in parallel
     #pragma omp declare reduction (merge : std::vector<Match> : omp_out.insert(omp_out.end(), omp_in.begin(), omp_in.end()))
-    std::vector<Match> matches;
 
+    std::vector<Match> matches;
+    std::vector< std::pair <cv::Point2d,cv::Point2d> > predictions; 
     int x_bin_num = width / MATCH_BINSIZE + 1;
     int y_bin_num = height / MATCH_BINSIZE + 1;
 
@@ -88,18 +93,28 @@ std::vector<Match> performCircularMatching(int width, int height, std::vector<Ke
     createIndexVector(pts2_l, bins2_l);
     createIndexVector(pts2_r, bins2_r);
 
-    #pragma omp parallel reduction(merge: matches) num_threads(3)
-    {
-    #pragma omp for
-    for (int i = 0; i < pts1_l.size(); i++) {
-        // std::cout << "Greetings from thread "<<omp_get_thread_num()<<std::endl;
+    double rmatr_data[9] = { 1,0,0,0,1,0,0,0,1};
+    cv::Mat rmatrix = cv::Mat(3, 3, CV_64F, rmatr_data); // rvec to project on camera
+    cv::Mat tvec_r = projMatrr.col(3);
+    cv::Mat distCoeffs = cv::Mat::zeros(1, 4, CV_64F);
 
+    // #pragma omp parallel reduction(merge: matches) num_threads(1)
+    {
+    // #pragma omp for
+    for (int i = 0; i < pts1_l.size(); i++) {
         KeyPoint* pt1_r, *pt1_l, *pt2_r, *pt2_l;
         bool pt1_r_matched, pt2_r_matched, pt2_l_matched, pt1_l_mathed;
         findMatchSAD(pts1_l[i], bins1_r, 1, pt1_r, pt1_r_matched);
 
         if (!pt1_r_matched) continue;
 
+        int disp = pts1_l[i].point.x - pt1_r->point.x;
+        if (disp < 0) continue;
+
+        auto predictedPoint = predictKeypointPosition(pts1_l[i], *pt1_r, projMatrl, projMatrr, transform, rmatrix, tvec_r, distCoeffs);
+        // std::cout << "predicted point " << predictedPoint << std::endl;
+
+        predictions.push_back({ cv::Point2d(pt1_r->point), cv::Point2d(predictedPoint) });
 
         findMatchSAD(*pt1_r, bins2_r, 0, pt2_r, pt2_r_matched);  
  
@@ -128,5 +143,53 @@ std::vector<Match> performCircularMatching(int width, int height, std::vector<Ke
         }        
     }
     }
+
+    cv::Mat vis;
+
+    cv::cvtColor(img_r, vis, CV_GRAY2BGR, 3);
+    for (int i = 0; i < predictions.size(); i++)
+    {
+    cv::circle(vis, predictions[i].first, 2, CV_RGB(0,255,0), 1);
+    cv::circle(vis, predictions[i].second, 2, CV_RGB(0,0,255), 1);
+    cv::line(vis, predictions[i].first, predictions[i].second, CV_RGB(0,255,0));
+    }
+
+    cv::imshow("predictions", vis );  
+    cv::waitKey(1);
+
+
     return matches;
+}
+
+cv::Point2d predictKeypointPosition(KeyPoint& keypoint_left,
+                                    KeyPoint& keypoint_right,
+                                    cv::Mat& projMatrl, 
+                                    cv::Mat& projMatrr,
+                                    cv::Mat& transform,
+                                    cv::Mat& cameraRvec,
+                                    cv::Mat& cameraTvec,
+                                    cv::Mat& distCoeffs) {
+    cv::Mat points3D, points4D;
+    cv::triangulatePoints( projMatrl,  projMatrr,  cv::Mat(cv::Point2f(keypoint_left.point)),  cv::Mat(cv::Point2f(keypoint_right.point)),  points4D);
+
+    points4D.convertTo(points4D, CV_64F);
+
+    double w = points4D.at<double>(3);
+    double homoPoint[] = {points4D.at<double>(0)/w, points4D.at<double>(1)/w, points4D.at<double>(2)/w, 1.0 };
+    cv::Mat target = cv::Mat(4,1,CV_64F, homoPoint);
+
+    cv::Mat predicted_3d = transform * target;
+    predicted_3d = cv::Mat(predicted_3d, cv::Range(0, 3));
+    predicted_3d = predicted_3d.t();
+
+
+    std::vector<cv::Point2d> points;
+    cv::Mat cameraMatrr = projMatrr(cv::Rect( 0, 0, 3, 3 ));
+    
+
+    cameraTvec.convertTo(cameraTvec, CV_64F);
+    cameraMatrr.convertTo(cameraMatrr, CV_64F);
+
+    cv::projectPoints(predicted_3d, cameraRvec, cameraTvec, cameraMatrr, distCoeffs, points);
+    return points[0];
 }
