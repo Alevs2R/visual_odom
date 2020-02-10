@@ -194,6 +194,60 @@ void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std
     cvtColor(image_color, image_gary, cv::COLOR_BGR2GRAY);
 }
 
+/* Performs projecting of 3d points to 2d and shows the result */
+/* tune distance threshold parameter to get better visualization */
+
+void displayDepthMap(cv::Mat& points3D_t0, cv::Mat& image, cv::Mat& rvec, cv::Mat& tvec, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, float distanceThreshold = -1) {
+        std::vector<cv::Point2f> imagePointsl;
+        cv::projectPoints(points3D_t0, rvec, tvec, cameraMatrix, distCoeffs, imagePointsl);
+        
+        cv::Mat depth_vector;
+        cv::extractChannel(points3D_t0, depth_vector, 2);
+  
+        /* now depth_vector has shape Nx1 and type CV_32FC1 */
+        if (distanceThreshold != -1) {
+            for (auto i = 0; i < imagePointsl.size(); ++i)
+            {
+                if (depth_vector.at<float>(i) > distanceThreshold)
+                {
+                    depth_vector.at<float>(i) = distanceThreshold;
+                }
+            }
+        }
+
+        // double min, max;
+        // cv::minMaxLoc(depth_vector, &min, &max);
+        // printf("min %lf max %lf \n", min, max);
+
+        cv::normalize(depth_vector, depth_vector, 0, 255, CV_MINMAX, CV_8UC1);
+        /* now depth_vector has shape Nx1 and type CV_8UC1 */
+        cv::applyColorMap(depth_vector, depth_vector, cv::COLORMAP_AUTUMN);
+        /* now depth_vector has shape Nx1 and type CV_8UC3 */
+
+        int radius = 2;
+
+        cv::Mat vis;
+        cv::cvtColor(image, vis, CV_GRAY2BGR, 3);
+
+        for (int i = 0; i < imagePointsl.size(); i++)
+        {
+            cv::circle(vis, imagePointsl[i], 3, depth_vector.at<cv::Vec3b>(i), -1);
+        }
+        cv::imshow("features depth map", vis );  
+        cv::waitKey(1);
+}
+
+void displayKeypoints(cv::Mat& image, std::vector<KeyPoint>& keypoints) {
+    int radius = 2;
+    cv::Mat vis;
+    cv::cvtColor(image, vis, CV_GRAY2BGR, 3);
+    for (int i = 0; i < keypoints.size(); i++)
+    {
+      cv::circle(vis, keypoints[i].point, radius, CV_RGB(0,255,0));
+    }
+    cv::imshow("initial features", vis );  
+    cv::waitKey(1);
+}
 
 
 

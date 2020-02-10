@@ -91,9 +91,11 @@ int main(int argc, char **argv)
 
     cv::Mat projMatrl = (cv::Mat_<float>(3, 4) << fx, 0., cx, 0., 0., fy, cy, 0., 0,  0., 1., 0.);
     cv::Mat projMatrr = (cv::Mat_<float>(3, 4) << fx, 0., cx, bf, 0., fy, cy, 0., 0,  0., 1., 0.);
+    cv::Mat cameraMatrl = projMatrl(cv::Rect( 0, 0, 3, 3 ));
+    cv::Mat cameraMatrr = projMatrr(cv::Rect( 0, 0, 3, 3 ));
+
     cout << "P_left: " << endl << projMatrl << endl;
     cout << "P_right: " << endl << projMatrr << endl;
-
     // -----------------------------------------
     // Initialize variables
     // -----------------------------------------
@@ -141,6 +143,13 @@ int main(int argc, char **argv)
     pts1_l = featureDetectionGeiger(imageLeft_t0);
     pts1_r = featureDetectionGeiger(imageRight_t0);
 
+    double rmatr_data[9] = { 1,0,0,0,1,0,0,0,1};
+    cv::Mat rmatrix = cv::Mat(3, 3, CV_64F, rmatr_data); // rvec to project on left camera
+
+    cv::Mat tvec_l = projMatrl.col(3);
+
+    cv::Mat distCoeffs = cv::Mat::zeros(1, 4, CV_64F);
+
     for (int frame_id = init_frame_id+1; frame_id < imagenames.size(); frame_id++)
     {
 
@@ -184,6 +193,8 @@ int main(int argc, char **argv)
         double start = omp_get_wtime();
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t0,  pointsRight_t0,  points4D_t0);
         cv::convertPointsFromHomogeneous(points4D_t0.t(), points3D_t0);
+
+        // displayDepthMap(points3D_t0, imageLeft_t0, rmatrix, tvec_l, cameraMatrl, distCoeffs, 30.0f);
 
         cv::Mat points3D_t1, points4D_t1;
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t1,  pointsRight_t1,  points4D_t1);

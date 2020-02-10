@@ -123,7 +123,7 @@ std::vector<Match> performCircularMatching(int width, int height, std::vector<Ke
             if (disp1 > 0 && disp2 > 0) {
                 pt2_l->age = pt1_l->age + 1; // increase age 
                 memcpy(pt2_l->descriptor, pt1_l->descriptor, 32*sizeof(uint16_t)); // keep original descriptor
-                matches.push_back({ pt1_r, pt1_l, pt2_r, pt2_l });
+                matches.push_back({ pt1_l, pt1_r, pt2_l, pt2_r });
             }
         }        
     }
