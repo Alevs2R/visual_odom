@@ -99,12 +99,12 @@ void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
         appendNewFeatures(imageLeft_t0, currentVOFeatures);   
         // std::cout << "Current feature set size: " << currentVOFeatures.points.size() << std::endl;
     }
-
+    printf("initial number of features %d\n", (int)currentVOFeatures.size());
     // --------------------------------------------------------
     // Feature tracking using KLT tracker, bucketing and circular matching
     // --------------------------------------------------------
     int bucket_size = 50;
-    int features_per_bucket = 1;
+    int features_per_bucket = 5;
     bucketingFeatures(imageLeft_t0, currentVOFeatures, bucket_size, features_per_bucket);
 
     pointsLeft_t0 = currentVOFeatures.points;
@@ -113,12 +113,13 @@ void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                      pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1, pointsLeftReturn_t0, currentVOFeatures);
 
     std::vector<bool> status;
-    checkValidMatch(pointsLeft_t0, pointsLeftReturn_t0, status, 0);
+    checkValidMatch(pointsLeft_t0, pointsLeftReturn_t0, status, 5);
 
     removeInvalidPoints(pointsLeft_t0, status);
     removeInvalidPoints(pointsLeft_t1, status);
     removeInvalidPoints(pointsRight_t0, status);
     removeInvalidPoints(pointsRight_t1, status);
+    printf("number of features after circular matching %d\n", (int)pointsLeft_t1.size());
 
     currentVOFeatures.points = pointsLeft_t1;
 
