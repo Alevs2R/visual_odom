@@ -54,7 +54,7 @@ void loadGyro(std::string filename, std::vector<std::vector<double>>& time_gyros
 
 void logToFile(FILE* file, cv::Mat& pose);
 
-void displayDepthMap(cv::Mat& points3D_t0, cv::Mat& imageLeft_t0, cv::Mat& rvec, cv::Mat& tvec, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, float distanceThreshold);
+void displayDepthMap(cv::Mat& points3D_t0, cv::Mat& imageLeft_t0, cv::Mat& rvec, cv::Mat& tvec, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, double distanceThreshold);
 
 void displayKeypoints(cv::Mat& image, std::vector<KeyPoint>& keypoints);
 

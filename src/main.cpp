@@ -178,13 +178,13 @@ int main(int argc, char **argv)
         imageLeft_t0 = imageLeft_t1;
         imageRight_t0 = imageRight_t1;
 
-        std::vector<cv::Point2f> pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1;  
+        std::vector<cv::Point2d> pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1;  
 
         for (auto& match: matches) {
-            pointsLeft_t0.push_back(cv::Point2f(match.pt1_l->point));
-            pointsRight_t0.push_back(cv::Point2f(match.pt1_r->point));
-            pointsLeft_t1.push_back(cv::Point2f(match.pt2_l->point));
-            pointsRight_t1.push_back(cv::Point2f(match.pt2_r->point));
+            pointsLeft_t0.push_back(match.pt1_l->point);
+            pointsRight_t0.push_back(match.pt1_r->point);
+            pointsLeft_t1.push_back(match.pt2_l->point);
+            pointsRight_t1.push_back(match.pt2_r->point);
         }
 
         // continue;
@@ -198,8 +198,7 @@ int main(int argc, char **argv)
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t0,  pointsRight_t0,  points4D_t0);
         printf("triangulating %f \n",omp_get_wtime() - start);  
         cv::convertPointsFromHomogeneous(points4D_t0.t(), points3D_t0);
-
-        displayDepthMap(points3D_t0, imageLeft_t0, rmatrix, tvec_l, cameraMatrl, distCoeffs, 30.0f);
+        displayDepthMap(points3D_t0, imageLeft_t0, rmatrix, tvec_l, cameraMatrl, distCoeffs, 30.0);
 
         cv::Mat points3D_t1, points4D_t1;
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t1,  pointsRight_t1,  points4D_t1);
@@ -215,8 +214,7 @@ int main(int argc, char **argv)
 
 
         points4D = points4D_t0;
-        frame_pose.convertTo(frame_pose32, CV_32F);
-        points4D = frame_pose32 * points4D;
+        points4D = frame_pose * points4D;
         cv::convertPointsFromHomogeneous(points4D.t(), points3D);
 
         // // ------------------------------------------------

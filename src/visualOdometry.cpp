@@ -80,8 +80,8 @@ std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t
 
 
 void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,
-                         std::vector<cv::Point2f>&  pointsLeft_t0,
-                         std::vector<cv::Point2f>&  pointsLeft_t1, 
+                         std::vector<cv::Point2d>&  pointsLeft_t0,
+                         std::vector<cv::Point2d>&  pointsLeft_t1, 
                          cv::Mat& points3D_t0,
                          cv::Mat& rotation,
                          cv::Mat& translation,
@@ -93,7 +93,7 @@ void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,
       // -----------------------------------------------------------
       // Rotation(R) estimation using Nister's Five Points Algorithm
       // -----------------------------------------------------------
-      double focal = projMatrl.at<float>(0, 0);
+      double focal = projMatrl.at<double>(0, 0);
       cv::Point2d principle_point(projMatrl.at<double>(0, 2), projMatrl.at<double>(1, 2));
 
       //recovering the pose and the essential cv::matrix

@@ -38,8 +38,8 @@ std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t
 
 
 void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,
-                         std::vector<cv::Point2f>&  pointsLeft_t0,
-                         std::vector<cv::Point2f>&  pointsLeft_t1, 
+                         std::vector<cv::Point2d>&  pointsLeft_t0,
+                         std::vector<cv::Point2d>&  pointsLeft_t1, 
                          cv::Mat& points3D_t0,
                          cv::Mat& rotation,
                          cv::Mat& translation,

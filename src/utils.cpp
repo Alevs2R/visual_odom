@@ -198,21 +198,20 @@ void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std
 /* tune distance threshold parameter to get better visualization */
 /* points3D_t0 is Nx1 matrix with 3 channels */
 
-void displayDepthMap(cv::Mat& points3D_t0, cv::Mat& image, cv::Mat& rvec, cv::Mat& tvec, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, float distanceThreshold = -1) {
-        std::vector<cv::Point2f> imagePointsl;
-
-        cv::projectPoints(points3D_t0, rvec, tvec, cameraMatrix, distCoeffs, imagePointsl);
+void displayDepthMap(cv::Mat& points3D_t0, cv::Mat& image, cv::Mat& rvec, cv::Mat& tvec, cv::Mat& cameraMatrix, cv::Mat& distCoeffs, double distanceThreshold = -1.0) {
+        std::vector<cv::Point2d> imagePointsl;
         
+        cv::projectPoints(points3D_t0, rvec, tvec, cameraMatrix, distCoeffs, imagePointsl);
         cv::Mat depth_vector;
         cv::extractChannel(points3D_t0, depth_vector, 2);
-  
-        /* now depth_vector has shape Nx1 and type CV_32FC1 */
+
+        /* now depth_vector has shape Nx1 and type CV_64FC1 */
         if (distanceThreshold != -1) {
             for (auto i = 0; i < imagePointsl.size(); ++i)
             {
-                if (depth_vector.at<float>(i) > distanceThreshold)
+                if (depth_vector.at<double>(i) > distanceThreshold)
                 {
-                    depth_vector.at<float>(i) = distanceThreshold;
+                    depth_vector.at<double>(i) = distanceThreshold;
                 }
             }
         }
