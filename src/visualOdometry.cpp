@@ -76,31 +76,6 @@ std::vector<Match> matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t
     // displayKeypoints(imageLeft_t1, pts2_l);
     displayTracking(imageLeft_t1, filteredMatches);
     return filteredMatches;
-
-    // cv::waitKey();
-
-    // --------------------------------------------------------
-    // Feature tracking using KLT tracker, bucketing and circular matching
-    // --------------------------------------------------------
-    // int bucket_size = 50;
-    // int features_per_bucket = 5;
-    // bucketingFeatures(imageLeft_t0, currentVOFeatures, bucket_size, features_per_bucket);
-
-    // pointsLeft_t0 = currentVOFeatures.points;
-    
-    // circularMatching(imageLeft_t0, imageRight_t0, imageLeft_t1, imageRight_t1,
-    //                  pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1, pointsLeftReturn_t0, currentVOFeatures);
-
-    // std::vector<bool> status;
-    // checkValidMatch(pointsLeft_t0, pointsLeftReturn_t0, status, 0);
-
-    // removeInvalidPoints(pointsLeft_t0, status);
-    // removeInvalidPoints(pointsLeft_t1, status);
-    // removeInvalidPoints(pointsRight_t0, status);
-    // removeInvalidPoints(pointsRight_t1, status);
-
-    // currentVOFeatures.points = pointsLeft_t1;
-
 }
 
 
@@ -119,7 +94,7 @@ void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,
       // Rotation(R) estimation using Nister's Five Points Algorithm
       // -----------------------------------------------------------
       double focal = projMatrl.at<float>(0, 0);
-      cv::Point2d principle_point(projMatrl.at<float>(0, 2), projMatrl.at<float>(1, 2));
+      cv::Point2d principle_point(projMatrl.at<double>(0, 2), projMatrl.at<double>(1, 2));
 
       //recovering the pose and the essential cv::matrix
       cv::Mat E, mask;
@@ -134,9 +109,9 @@ void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,
       cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_64FC1);  
       cv::Mat inliers;  
       cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
-      cv::Mat intrinsic_matrix = (cv::Mat_<float>(3, 3) << projMatrl.at<float>(0, 0), projMatrl.at<float>(0, 1), projMatrl.at<float>(0, 2),
-                                                   projMatrl.at<float>(1, 0), projMatrl.at<float>(1, 1), projMatrl.at<float>(1, 2),
-                                                   projMatrl.at<float>(1, 1), projMatrl.at<float>(1, 2), projMatrl.at<float>(1, 3));
+      cv::Mat intrinsic_matrix = (cv::Mat_<double>(3, 3) << projMatrl.at<double>(0, 0), projMatrl.at<double>(0, 1), projMatrl.at<double>(0, 2),
+                                                   projMatrl.at<double>(1, 0), projMatrl.at<double>(1, 1), projMatrl.at<double>(1, 2),
+                                                   projMatrl.at<double>(1, 1), projMatrl.at<double>(1, 2), projMatrl.at<double>(1, 3));
 
       int iterationsCount = 500;        // number of Ransac iterations.
       float reprojectionError = .5;    // maximum allowed distance to consider it an inlier.

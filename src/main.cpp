@@ -83,14 +83,14 @@ int main(int argc, char **argv)
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
     
-    float fx = fSettings["Camera.fx"];
-    float fy = fSettings["Camera.fy"];
-    float cx = fSettings["Camera.cx"];
-    float cy = fSettings["Camera.cy"];
-    float bf = fSettings["Camera.bf"];
+    double fx = fSettings["Camera.fx"];
+    double fy = fSettings["Camera.fy"];
+    double cx = fSettings["Camera.cx"];
+    double cy = fSettings["Camera.cy"];
+    double bf = fSettings["Camera.bf"];
 
-    cv::Mat projMatrl = (cv::Mat_<float>(3, 4) << fx, 0., cx, 0., 0., fy, cy, 0., 0,  0., 1., 0.);
-    cv::Mat projMatrr = (cv::Mat_<float>(3, 4) << fx, 0., cx, bf, 0., fy, cy, 0., 0,  0., 1., 0.);
+    cv::Mat projMatrl = (cv::Mat_<double>(3, 4) << fx, 0., cx, 0., 0., fy, cy, 0., 0,  0., 1., 0.);
+    cv::Mat projMatrr = (cv::Mat_<double>(3, 4) << fx, 0., cx, bf, 0., fy, cy, 0., 0,  0., 1., 0.);
     cv::Mat cameraMatrl = projMatrl(cv::Rect( 0, 0, 3, 3 ));
     cv::Mat cameraMatrr = projMatrr(cv::Rect( 0, 0, 3, 3 ));
 

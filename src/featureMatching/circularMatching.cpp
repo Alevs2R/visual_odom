@@ -170,18 +170,14 @@ cv::Point2d predictKeypointPosition(KeyPoint& keypoint_left,
                                     cv::Mat& cameraTvec,
                                     cv::Mat& distCoeffs) {
     cv::Mat points3D, points4D;
-    cv::triangulatePoints( projMatrl,  projMatrr,  cv::Mat(cv::Point2f(keypoint_left.point)),  cv::Mat(cv::Point2f(keypoint_right.point)),  points4D);
-
-    points4D.convertTo(points4D, CV_64F);
+    cv::triangulatePoints( projMatrl,  projMatrr,  cv::Mat(cv::Point2d(keypoint_left.point)),  cv::Mat(cv::Point2d(keypoint_right.point)),  points4D);
 
     double w = points4D.at<double>(3);
     double homoPoint[] = {points4D.at<double>(0)/w, points4D.at<double>(1)/w, points4D.at<double>(2)/w, 1.0 };
     cv::Mat target = cv::Mat(4,1,CV_64F, homoPoint);
 
     cv::Mat predicted_3d = transform * target;
-    predicted_3d = cv::Mat(predicted_3d, cv::Range(0, 3));
-    predicted_3d = predicted_3d.t();
-
+    predicted_3d = cv::Mat(predicted_3d, cv::Range(0, 3)).t();
 
     std::vector<cv::Point2d> points;
     cv::Mat cameraMatrr = projMatrr(cv::Rect( 0, 0, 3, 3 ));
