@@ -170,10 +170,13 @@ int main(int argc, char **argv)
         cv::vconcat(transformation, addup, transformation);
 
         // transformation = transformation;
+        double start = omp_get_wtime();
 
         std::vector<Match> matches = matchingFeatures( imageLeft_t0, imageRight_t0,
                           imageLeft_t1, imageRight_t1, 
                           pts1_l, pts1_r, pts2_l, pts2_r, projMatrr, projMatrl, transformation);
+        printf("overall matching %f sec\n",omp_get_wtime() - start);  
+
 
         imageLeft_t0 = imageLeft_t1;
         imageRight_t0 = imageRight_t1;
@@ -194,22 +197,19 @@ int main(int argc, char **argv)
         // ---------------------
         cv::Mat points3D_t0, points4D_t0;
 
-        double start = omp_get_wtime();
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t0,  pointsRight_t0,  points4D_t0);
-        printf("triangulating %f \n",omp_get_wtime() - start);  
         cv::convertPointsFromHomogeneous(points4D_t0.t(), points3D_t0);
-        displayDepthMap(points3D_t0, imageLeft_t0, rmatrix, tvec_l, cameraMatrl, distCoeffs, 30.0);
+        // displayDepthMap(points3D_t0, imageLeft_t0, rmatrix, tvec_l, cameraMatrl, distCoeffs, 30.0);
 
         cv::Mat points3D_t1, points4D_t1;
         cv::triangulatePoints( projMatrl,  projMatrr,  pointsLeft_t1,  pointsRight_t1,  points4D_t1);
         cv::convertPointsFromHomogeneous(points4D_t1.t(), points3D_t1);
-
         // // ---------------------
         // // Tracking transfomation
         // // ---------------------
-        start = omp_get_wtime();
+        // start = omp_get_wtime();
         trackingFrame2Frame(projMatrl, projMatrr, pointsLeft_t0, pointsLeft_t1, points3D_t0, rotation, translation, false);
-        printf("calculate transformation %f \n",omp_get_wtime() - start);  
+        // printf("calculate transformation %f \n",omp_get_wtime() - start);  
         // displayTracking(imageLeft_t1, pointsLeft_t0, pointsLeft_t1);
 
 
@@ -226,12 +226,11 @@ int main(int argc, char **argv)
 
         cv::Mat rigid_body_transformation;
 
-        std::cout << "rotation euler " << rotation_euler << "\n";
+        // std::cout << "rotation euler " << rotation_euler << "\n";
 
         if(abs(rotation_euler[1])<0.1 && abs(rotation_euler[0])<0.1 && abs(rotation_euler[2])<0.1)
         {
             integrateOdometryStereo(frame_id, rigid_body_transformation, frame_pose, rotation, translation);
-
         } else {
 
             std::cout << "Too large rotation"  << std::endl;
@@ -248,7 +247,7 @@ int main(int argc, char **argv)
         cv::Mat xyz = frame_pose.col(3).clone();
         display(frame_id, trajectory, xyz, pose_matrix_gt, 10, display_ground_truth);
         // logToFile(result_poses_file, frame_pose);
-        // cv::waitKey(1);
+        cv::waitKey(1);
 
         pts1_l = std::move(pts2_l);
         pts1_r = std::move(pts2_r);

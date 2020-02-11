@@ -47,7 +47,7 @@ cv::Mat gradientX(cv::Mat& image)
 {
     cv::Mat grad;
     cv::Scharr( image, grad, CV_16S, 1, 0, 1, 0, cv::BORDER_DEFAULT);
-    //convertScaleAbs(grad, abs_grad);  
+    // cv::Sobel( image, grad, CV_16S, 1, 0, 5);
     return grad; 
 }
 
@@ -55,9 +55,7 @@ cv::Mat gradientY(cv::Mat& image)
 {
     cv::Mat grad;
     cv::Scharr( image, grad, CV_16S, 0, 1, 1, 0, cv::BORDER_DEFAULT);
-    //std::cout << "grad = " << std::endl << " "  << grad << std::endl << std::endl;
-    //convertScaleAbs(grad, abs_grad);  
-    //std::cout << "abs_grad = " << std::endl << " "  << abs_grad << std::endl << std::endl;
+    // cv::Sobel( image, grad, CV_16S, 0, 1, 5);
     return grad; 
 }
 

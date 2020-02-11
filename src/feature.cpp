@@ -33,8 +33,11 @@ std::vector<KeyPoint> featureDetectionGeiger(cv::Mat& image)
     blobF = blob5x5(image);
     // double start = omp_get_wtime();
     std::vector<KeyPoint> keypts = nonMaximaSuppression(blobF, cornerF);
-    // printf("nms %f sec\n",omp_get_wtime() - start);   
+    // printf("nms %f sec\n",omp_get_wtime() - start); 
+    // start = omp_get_wtime();  
     computeDescriptors(gradX, gradY, keypts);
+    // printf("computing descriptors %f sec\n",omp_get_wtime() - start);  
+
     return keypts;
 }
 
