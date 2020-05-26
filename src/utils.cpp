@@ -169,24 +169,23 @@ void loadGyro(std::string filename, std::vector<std::vector<double>>& time_gyros
     }
 }
 
-void loadImageLeft(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath){
+void loadImageLeft(cv::Mat& image_gary, int frame_id, std::string filepath){
     char file[200];
-    sprintf(file, "image_0/%06d.png", frame_id);
+    sprintf(file, "img_left/%d.jpg", frame_id);
 
-    // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);
-    image_color = cv::imread(filename, cv::IMREAD_COLOR);
-    cvtColor(image_color, image_gary, cv::COLOR_BGR2GRAY);
+    image_gary = cv::imread(filename, cv::IMREAD_GRAYSCALE);
+    // cvtColor(image_color, image_gary, cv::COLOR_BGR2GRAY);
 }
 
-void loadImageRight(cv::Mat& image_color, cv::Mat& image_gary, int frame_id, std::string filepath){
+void loadImageRight(cv::Mat& image_gary, int frame_id, std::string filepath){
     char file[200];
-    sprintf(file, "image_1/%06d.png", frame_id);
+    sprintf(file, "img_right/%d.jpg", frame_id);
 
     // sprintf(file, "image_0/%010d.png", frame_id);
     std::string filename = filepath + std::string(file);
-    image_color = cv::imread(filename, cv::IMREAD_COLOR);
-    cvtColor(image_color, image_gary, cv::COLOR_BGR2GRAY);
+    image_gary = cv::imread(filename, cv::IMREAD_GRAYSCALE);
+    // cvtColor(image_color, image_gary, cv::COLOR_BGR2GRAY);
 }
 
 

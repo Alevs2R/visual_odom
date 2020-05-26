@@ -49,14 +49,14 @@ void checkValidMatch(std::vector<cv::Point2f>& points, std::vector<cv::Point2f>&
         offset = std::max(std::abs(points[i].x - points_return[i].x), std::abs(points[i].y - points_return[i].y));
         // std::cout << offset << ", ";
 
-        if(offset > threshold)
-        {
-            status.push_back(false);
-        }
-        else
-        {
+        // if(offset > threshold)
+        // {
+        //     status.push_back(false);
+        // }
+        // else
+        // {
             status.push_back(true);
-        }
+        // }
     }
 }
 
@@ -103,8 +103,10 @@ void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
     // --------------------------------------------------------
     // Feature tracking using KLT tracker, bucketing and circular matching
     // --------------------------------------------------------
-    int bucket_size = imageLeft_t0.rows/10;
-    int features_per_bucket = 1;
+
+    int bucket_size = imageLeft_t0.rows/20;
+
+    int features_per_bucket = 3;
     bucketingFeatures(imageLeft_t0, currentVOFeatures, bucket_size, features_per_bucket);
 
     pointsLeft_t0 = currentVOFeatures.points;
@@ -117,7 +119,7 @@ void matchingFeatures(cv::Mat& imageLeft_t0, cv::Mat& imageRight_t0,
                      pointsLeft_t0, pointsRight_t0, pointsLeft_t1, pointsRight_t1, pointsLeftReturn_t0, currentVOFeatures);
     #endif
     std::vector<bool> status;
-    checkValidMatch(pointsLeft_t0, pointsLeftReturn_t0, status, 0);
+    checkValidMatch(pointsLeft_t0, pointsLeftReturn_t0, status, 3 );
 
     removeInvalidPoints(pointsLeft_t0, status);
     removeInvalidPoints(pointsLeft_t1, status);
@@ -186,7 +188,7 @@ void trackingFrame2Frame(cv::Mat& projMatrl, cv::Mat& projMatrr,
       {
         cv::Rodrigues(rvec, rotation);
       }
-
+      std::cout << "[trackingFrame2Frame] total size: " << pointsLeft_t1.size() << std::endl;
       std::cout << "[trackingFrame2Frame] inliers size: " << inliers.size() << std::endl;
 
 }

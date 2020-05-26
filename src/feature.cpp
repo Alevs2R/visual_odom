@@ -1,5 +1,8 @@
 #include "feature.h"
 #include "bucket.h"
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <iostream>
 
 #if gpu_build
 static void download(const cv::cuda::GpuMat& d_mat, std::vector<cv::Point2f>& vec)
@@ -40,10 +43,19 @@ void featureDetectionFast(cv::Mat image, std::vector<cv::Point2f>& points)
 {   
 //uses FAST as for feature dection, modify parameters as necessary
   std::vector<cv::KeyPoint> keypoints;
-  int fast_threshold = 20;
+  int fast_threshold = 8;
   bool nonmaxSuppression = true;
   cv::FAST(image, keypoints, fast_threshold, nonmaxSuppression);
   cv::KeyPoint::convert(keypoints, points, std::vector<int>());
+
+  printf("fast features %d\n", (int)points.size());
+  cv::Mat img_clone = image.clone();
+  for (int i = 0; i < points.size(); i++)
+  {
+      circle(img_clone, cv::Point(points[i].x, points[i].y), 2, CV_RGB(255,255,255));
+  }
+  cv::imshow("fast features", img_clone);
+  cv::waitKey(1);
 }
 
 void featureDetectionGoodFeaturesToTrack(cv::Mat image, std::vector<cv::Point2f>& points)  
@@ -86,6 +98,11 @@ void deleteUnmatchFeaturesCircle(std::vector<cv::Point2f>& points0, std::vector<
   }
 
   int indexCorrection = 0;
+  int unmatched0 = 0;
+  int unmatched1 = 0;
+  int unmatched2 = 0;
+  int unmatched3 = 0;
+  int unmatched_total = 0;
   for( int i=0; i<status3.size(); i++)
      {  cv::Point2f pt0 = points0.at(i- indexCorrection);
         cv::Point2f pt1 = points1.at(i- indexCorrection);
@@ -98,6 +115,19 @@ void deleteUnmatchFeaturesCircle(std::vector<cv::Point2f>& points0, std::vector<
             (status1.at(i) == 0)||(pt1.x<0)||(pt1.y<0)||
             (status0.at(i) == 0)||(pt0.x<0)||(pt0.y<0))   
         {
+          unmatched_total++;
+          if ((status3.at(i) == 0)||(pt3.x<0)||(pt3.y<0)) {
+            unmatched3++;
+          }
+          if ((status2.at(i) == 0)||(pt2.x<0)||(pt2.y<0)) {
+            unmatched2++;
+          }
+          if ((status1.at(i) == 0)||(pt1.x<0)||(pt1.y<0)) {
+            unmatched1++;
+          }
+          if ((status0.at(i) == 0)||(pt0.x<0)||(pt0.y<0)) {
+            unmatched0++;
+          }
           if((pt0.x<0)||(pt0.y<0)||(pt1.x<0)||(pt1.y<0)||(pt2.x<0)||(pt2.y<0)||(pt3.x<0)||(pt3.y<0))    
           {
             status3.at(i) = 0;
@@ -113,6 +143,7 @@ void deleteUnmatchFeaturesCircle(std::vector<cv::Point2f>& points0, std::vector<
         }
 
      }  
+  printf("unmatched 0 %d, 1 %d, 2 %d, 3 %d, total %d\n", unmatched0, unmatched1, unmatched2, unmatched3, unmatched_total);   
 }
 
 void circularMatching(cv::Mat img_l_0, cv::Mat img_r_0, cv::Mat img_l_1, cv::Mat img_r_1,
@@ -124,7 +155,7 @@ void circularMatching(cv::Mat img_l_0, cv::Mat img_r_0, cv::Mat img_l_1, cv::Mat
   //this function automatically gets rid of points for which tracking fails
 
   std::vector<float> err;                    
-  cv::Size winSize=cv::Size(21,21);                                                                                             
+  cv::Size winSize=cv::Size(51,51);                                                                                             
   cv::TermCriteria termcrit=cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 30, 0.01);
 
   std::vector<uchar> status0;
@@ -133,10 +164,10 @@ void circularMatching(cv::Mat img_l_0, cv::Mat img_r_0, cv::Mat img_l_1, cv::Mat
   std::vector<uchar> status3;
 
   clock_t tic = clock();
-  calcOpticalFlowPyrLK(img_l_0, img_r_0, points_l_0, points_r_0, status0, err, winSize, 3, termcrit, 0, 0.001);
-  calcOpticalFlowPyrLK(img_r_0, img_r_1, points_r_0, points_r_1, status1, err, winSize, 3, termcrit, 0, 0.001);
-  calcOpticalFlowPyrLK(img_r_1, img_l_1, points_r_1, points_l_1, status2, err, winSize, 3, termcrit, 0, 0.001);
-  calcOpticalFlowPyrLK(img_l_1, img_l_0, points_l_1, points_l_0_return, status3, err, winSize, 3, termcrit, 0, 0.001);
+  calcOpticalFlowPyrLK(img_l_0, img_r_0, points_l_0, points_r_0, status0, err, winSize, 1, termcrit, 0, 0.0001);
+  calcOpticalFlowPyrLK(img_r_0, img_r_1, points_r_0, points_r_1, status1, err, winSize, 1, termcrit, 0, 0.0001);
+  calcOpticalFlowPyrLK(img_r_1, img_l_1, points_r_1, points_l_1, status2, err, winSize, 1, termcrit, 0, 0.0001);
+  calcOpticalFlowPyrLK(img_l_1, img_l_0, points_l_1, points_l_0_return, status3, err, winSize, 1, termcrit, 0, 0.0001);
   clock_t toc = clock();
   std::cerr << "calcOpticalFlowPyrLK time: " << float(toc - tic)/CLOCKS_PER_SEC*1000 << "ms" << std::endl;
 

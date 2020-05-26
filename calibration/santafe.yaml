@@ -1,0 +1,90 @@
+%YAML:1.0
+
+#==============#
+# Camera Model #
+#==============#
+
+Camera.name: "stereo_camera"
+Camera.setup: "stereo"
+Camera.model: "perspective"
+
+# pix_size_x = 24/960
+# fx = f / pix_size_x
+# 1333.33
+Camera.fx: 1260.7197360360594
+# fy = f / pix_size_y
+Camera.fy: 1260.7197360360594
+# cx = pix_size_x / 2
+Camera.cx: 551.0852928161621
+# cy = pix_size_y / 2
+Camera.cy: 240.89071655273438
+
+Camera.k1: 0.0
+Camera.k2: 0.0
+Camera.p1: 0.0
+Camera.p2: 0.0
+Camera.k3: 0.0
+
+Camera.fps: 1.0
+Camera.cols: 960
+Camera.rows: 540
+
+# stereo baseline times fx
+Camera.bf: -639.627556601
+
+Camera.color_order: "RGB"
+
+#======================#
+# Stereo Rectification #
+#======================#
+
+# original intrinsic parameters (K, D) and stereo-recitification parameters (R)
+# matrices (K, R) are written in row-major order
+
+StereoRectifier.K_left: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [1054.37678029, 0.0, 476.8995432, 0.0, 1054.37678029, 238.680495993, 0.0, 0.0, 1.0]
+
+StereoRectifier.D_left: !!opencv-matrix
+   rows: 1
+   cols: 5
+   dt: d
+   data: [-0.06923531284864967, 0.3442515463120727, 0, 0, -0.01270017464054916]
+
+StereoRectifier.R_left: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [0.9936920627865121, -0.0015644569635759093, -0.11213222921843416, 0.0013155768584192065, 0.9999965045935575, -0.0022934816756848917, 0.11213542532409611, 0.0021314959714316584, 0.9936906475922513]
+
+StereoRectifier.K_right: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [1055.04676473, 0.0, 483.790889395, 0.0, 1055.04676473, 242.124693155, 0.0, 0.0, 1]
+
+StereoRectifier.D_right: !!opencv-matrix
+   rows: 1
+   cols: 5
+   dt: d
+   data: [-0.04706278954123253, 0.2560428625092709, 0, 0, 0]
+
+StereoRectifier.R_right: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [0.9999842726884033, -0.0052831528179977895, 0.0018821987532011628, 0.005278968903376165, 0.9999835997709635, 0.0022209629493781403, -0.0018939015713751936, -0.002210991950913666, 0.9999957623167365]
+
+#=====================#
+# Tracking Parameters #
+#=====================#
+
+depth_threshold: 500
+
+#========================#
+# Initializer Parameters #
+#========================#
+
+Initializer.num_min_triangulated_pts: 3

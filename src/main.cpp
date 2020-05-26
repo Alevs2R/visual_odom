@@ -21,8 +21,8 @@
 #include "visualOdometry.h"
 #include "Frame.h"
 
-#include "camera_object.h"
-#include "rgbd_standalone.h"
+#include "stereo_rectifier.h"
+
 
 using namespace std;
 
@@ -33,7 +33,6 @@ int main(int argc, char **argv)
     // Load images and calibration parameters
     // -----------------------------------------
     bool display_ground_truth = false;
-    bool use_intel_rgbd = false;
     std::vector<Matrix> pose_matrix_gt;
     if(argc == 4)
     {   display_ground_truth = true;
@@ -52,8 +51,6 @@ int main(int argc, char **argv)
     // Sequence
     string filepath = string(argv[1]);
     cout << "Filepath: " << filepath << endl;
-
-    if(filepath == "rgbd") use_intel_rgbd = true;
 
     // Camera calibration
     string strSettingPath = string(argv[2]);
@@ -89,27 +86,25 @@ int main(int argc, char **argv)
     cv::Mat trajectory = cv::Mat::zeros(600, 1200, CV_8UC3);
     FeatureSet currentVOFeatures;
     cv::Mat points4D, points3D;
-    int init_frame_id = 0;
+    int init_frame_id = 1;
 
+
+    stereo_rectifier rectifier(fSettings);
     // ------------------------
     // Load first images
     // ------------------------
+    cv::Mat imageLeft_raw, imageRight_raw;
     cv::Mat imageRight_t0,  imageLeft_t0;
-    CameraBase *pCamera = NULL;
-    if(use_intel_rgbd)
-    {   
-        pCamera = new Intel_V4L2;
-        for (int throw_frames = 10 ; throw_frames >=0 ; throw_frames--)
-            pCamera->getLRFrames(imageLeft_t0,imageRight_t0);
-    }
-    else
-    {
-        cv::Mat imageLeft_t0_color;
-        loadImageLeft(imageLeft_t0_color,  imageLeft_t0, init_frame_id, filepath);
-        
-        cv::Mat imageRight_t0_color;  
-        loadImageRight(imageRight_t0_color, imageRight_t0, init_frame_id, filepath);
-    }
+
+    loadImageLeft(imageLeft_t0, init_frame_id, filepath);
+    loadImageRight(imageRight_t0, init_frame_id, filepath);
+    // rectifier.rectify(imageLeft_raw, imageRight_raw, imageLeft_t0, imageRight_t0);
+
+    cv::imwrite("original.jpg",imageRight_raw);
+    cv::imwrite("rectified.jpg",imageRight_t0);
+    cv::imwrite("original_left.jpg",imageLeft_raw);
+    cv::imwrite("rectified_left.jpg",imageLeft_t0);
+
     clock_t t_a, t_b;
 
     // -----------------------------------------
@@ -118,7 +113,9 @@ int main(int argc, char **argv)
     std::vector<FeaturePoint> oldFeaturePointsLeft;
     std::vector<FeaturePoint> currentFeaturePointsLeft;
 
-    for (int frame_id = init_frame_id+1; frame_id < 9000; frame_id++)
+    int inliersAvg = 0;
+
+    for (int frame_id = init_frame_id+1; frame_id <= 690; frame_id+=2)
     {
 
         std::cout << std::endl << "frame id " << frame_id << std::endl;
@@ -126,17 +123,15 @@ int main(int argc, char **argv)
         // Load images
         // ------------
         cv::Mat imageRight_t1,  imageLeft_t1;
-        if(use_intel_rgbd)
-        {
-            pCamera->getLRFrames(imageLeft_t1,imageRight_t1);
-        }
-        else
-        {
-            cv::Mat imageLeft_t1_color;
-            loadImageLeft(imageLeft_t1_color,  imageLeft_t1, frame_id, filepath);        
-            cv::Mat imageRight_t1_color;  
-            loadImageRight(imageRight_t1_color, imageRight_t1, frame_id, filepath);            
-        }
+        cv::Mat imageLeft_raw, imageRight_raw;
+        loadImageLeft(imageLeft_t1, frame_id, filepath);        
+        loadImageRight(imageRight_t1, frame_id, filepath);            
+        // rectifier.rectify(imageLeft_raw, imageRight_raw, imageLeft_t1, imageRight_t1);
+
+        // cv::imshow( "rectified", imageRight_t1 );
+        // cv::waitKey(1);
+        // cv::imshow( "original", imageRight_raw );
+        // cv::waitKey(0);
 
 
         t_a = clock();
@@ -150,7 +145,12 @@ int main(int argc, char **argv)
                           pointsLeft_t0, 
                           pointsRight_t0, 
                           pointsLeft_t1, 
-                          pointsRight_t1);  
+                          pointsRight_t1); 
+
+        if (pointsLeft_t1.size() < 10) {
+            continue;
+        }                  
+
 
         imageLeft_t0 = imageLeft_t1;
         imageRight_t0 = imageRight_t1;
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
         trackingFrame2Frame(projMatrl, projMatrr, pointsLeft_t0, pointsLeft_t1, points3D_t0, rotation, translation, false);
 	clock_t toc_gpu = clock();
 	std::cerr << "tracking frame 2 frame: " << float(toc_gpu - tic_gpu)/CLOCKS_PER_SEC*1000 << "ms" << std::endl;
-        displayTracking(imageLeft_t1, pointsLeft_t0, pointsLeft_t1);
+        displayTracking(imageLeft_t0, pointsLeft_t0, pointsRight_t0);
 
 
 /*        points4D = points4D_t0;
@@ -220,7 +220,7 @@ int main(int argc, char **argv)
         display(frame_id, trajectory, xyz, pose_matrix_gt, fps, display_ground_truth);
 
     }
-
+    cv::waitKey(0);
     return 0;
 }
 
